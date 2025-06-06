@@ -4,24 +4,46 @@ function App() {
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const [completedQuests, setCompletedQuests] = useState({});
-
-  const quests = [
+  const [quests, setQuests] = useState([
     { id: 1, text: "🧠 Read 30 mins", xp: 20 },
     { id: 2, text: "🏋️ Workout", xp: 25 },
     { id: 3, text: "📈 Study coding 1hr", xp: 30 },
     { id: 4, text: "🤝 Network with 1 person", xp: 25 },
-  ];
+  ]);
+
+  // For custom quest input
+  const [newQuestText, setNewQuestText] = useState("");
+  const [newQuestXP, setNewQuestXP] = useState("");
 
   const handleQuestComplete = (id, questXP) => {
-    if (completedQuests[id]) return; // Already completed
+    if (completedQuests[id]) return;
 
-    const newXp = xp + questXP;
-    const newLevel = level + Math.floor(newXp / 100);
-    const remainingXp = newXp % 100;
+    const totalXP = xp + questXP;
+    const newLevel = level + Math.floor(totalXP / 100);
+    const remainingXP = totalXP % 100;
 
-    setXp(remainingXp);
+    setXp(remainingXP);
     setLevel(newLevel);
     setCompletedQuests({ ...completedQuests, [id]: true });
+  };
+
+  const handleAddQuest = () => {
+    if (!newQuestText || !newQuestXP) return;
+
+    const id = quests.length + 1;
+    const xpValue = parseInt(newQuestXP);
+
+    if (isNaN(xpValue) || xpValue <= 0) return;
+
+    const newQuest = {
+      id,
+      text: newQuestText,
+      xp: xpValue,
+    };
+
+    setQuests([...quests, newQuest]);
+    setNewQuestText("");
+    setNewQuestXP("");
   };
 
   return (
@@ -40,10 +62,10 @@ function App() {
         </div>
       </div>
 
-      {/* Quests Section */}
+      {/* Quest List */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Quests for Today</h2>
-        <ul className="space-y-3">
+        <ul className="space-y-3 mb-6">
           {quests.map((quest) => (
             <li key={quest.id} className="flex items-center gap-3">
               <input
@@ -60,9 +82,29 @@ function App() {
           ))}
         </ul>
 
-        <button className="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold">
-          + Add Custom Quest
-        </button>
+        {/* Add Custom Quest */}
+        <div className="bg-gray-800 p-4 rounded-lg space-y-3">
+          <input
+            type="text"
+            placeholder="Quest name (e.g., Meditate 10 mins)"
+            value={newQuestText}
+            onChange={(e) => setNewQuestText(e.target.value)}
+            className="w-full p-2 bg-gray-700 rounded text-white placeholder-gray-400"
+          />
+          <input
+            type="number"
+            placeholder="XP amount"
+            value={newQuestXP}
+            onChange={(e) => setNewQuestXP(e.target.value)}
+            className="w-full p-2 bg-gray-700 rounded text-white placeholder-gray-400"
+          />
+          <button
+            onClick={handleAddQuest}
+            className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+          >
+            + Add Custom Quest
+          </button>
+        </div>
       </div>
     </div>
   );
