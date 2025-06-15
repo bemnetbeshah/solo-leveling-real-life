@@ -1,15 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function App() {
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [completedQuests, setCompletedQuests] = useState({});
-  const [quests, setQuests] = useState([
-    { id: 1, text: "🧠 Read 30 mins", xp: 20 },
-    { id: 2, text: "🏋️ Workout", xp: 25 },
-    { id: 3, text: "📈 Study coding 1hr", xp: 30 },
-    { id: 4, text: "🤝 Network with 1 person", xp: 25 },
-  ]);
+  const load = (key, defaultValue) =>
+    JSON.parse(localStorage.getItem(key)) ?? defaultValue;
+
+  const [xp, setXp] = useState(() => load("xp", 0));
+  const [level, setLevel] = useState(() => load("level", 1));
+  const [completedQuests, setCompletedQuests] = useState(() => load("completedQuests", {}));
+  const [quests, setQuests] = useState(() =>
+    load("quests", [
+      { id: 1, text: "🧠 Read 30 mins", xp: 20 },
+      { id: 2, text: "🏋️ Workout", xp: 25 },
+      { id: 3, text: "📈 Study coding 1hr", xp: 30 },
+      { id: 4, text: "🤝 Network with 1 person", xp: 25 },
+    ])
+);
+
+  useEffect(() => {
+    localStorage.setItem("xp", JSON.stringify(xp));
+  }, [xp]);
+
+  useEffect(() => {
+    localStorage.setItem("level", JSON.stringify(level));
+  }, [level]);
+
+  useEffect(() => {
+    localStorage.setItem("completedQuests", JSON.stringify(completedQuests));
+  }, [completedQuests]);
+
+  useEffect(() => {
+    localStorage.setItem("quests", JSON.stringify(quests));
+  }, [quests]);
+
 
   // For custom quest input
   const [newQuestText, setNewQuestText] = useState("");
