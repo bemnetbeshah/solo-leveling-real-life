@@ -43,6 +43,7 @@ export default function App() {
   const [newQuestXP, setNewQuestXP] = useState("");
   const [theme, setTheme] = useState("dark");
 
+<<<<<<< ours
   const handleQuestComplete = (id, questXP) => {
     if (completedQuests[id]) return;
     const totalXP = xp + questXP;
@@ -51,6 +52,30 @@ export default function App() {
     setXp(remainingXP);
     setLevel(newLevel);
     setCompletedQuests({ ...completedQuests, [id]: true });
+=======
+  const toggleQuestCompletion = (id, questXP) => {
+    const isCompleted = completedQuests[id];
+
+    if (isCompleted) {
+      const currentTotal = (level - 1) * 100 + xp;
+      let newTotal = currentTotal - questXP;
+      if (newTotal < 0) newTotal = 0;
+      const newLevel = Math.floor(newTotal / 100) + 1;
+      const remainingXP = newTotal % 100;
+      setXp(remainingXP);
+      setLevel(newLevel);
+      const updated = { ...completedQuests };
+      delete updated[id];
+      setCompletedQuests(updated);
+    } else {
+      const totalXP = xp + questXP;
+      const newLevel = level + Math.floor(totalXP / 100);
+      const remainingXP = totalXP % 100;
+      setXp(remainingXP);
+      setLevel(newLevel);
+      setCompletedQuests({ ...completedQuests, [id]: true });
+    }
+>>>>>>> theirs
   };
 
   const handleAddQuest = () => {
@@ -142,7 +167,11 @@ export default function App() {
                     <input
                       type="checkbox"
                       checked={completedQuests[q.id] || false}
+<<<<<<< ours
                       onChange={() => handleQuestComplete(q.id, q.xp)}
+=======
+                      onChange={() => toggleQuestCompletion(q.id, q.xp)}
+>>>>>>> theirs
                       className="accent-green-500"
                     />
                     <span className={completedQuests[q.id] ? "line-through opacity-50" : ""}>{q.text}</span>
