@@ -38,8 +38,29 @@ function App() {
   const [newQuestXP, setNewQuestXP] = useState("");
 
   const handleQuestComplete = (id, questXP) => {
-    if (completedQuests[id]) return;
+  const isCompleted = completedQuests[id];
 
+  if (isCompleted) {
+    // Uncheck the quest: subtract XP, possibly drop a level
+    let newXp = xp - questXP;
+    let newLevel = level;
+
+    // If XP goes below 0, level down
+    if (newXp < 0 && level > 1) {
+      newLevel -= 1;
+      newXp = 100 + newXp; // carry over negative XP
+    } else if (newXp < 0) {
+      newXp = 0; // if level 1 and underflowing, cap at 0
+    }
+
+    setXp(newXp);
+    setLevel(newLevel);
+
+    const updated = { ...completedQuests };
+    delete updated[id]; // remove quest from completed
+    setCompletedQuests(updated);
+  } else {
+    // Check the quest: add XP and level up if needed
     const totalXP = xp + questXP;
     const newLevel = level + Math.floor(totalXP / 100);
     const remainingXP = totalXP % 100;
@@ -47,7 +68,8 @@ function App() {
     setXp(remainingXP);
     setLevel(newLevel);
     setCompletedQuests({ ...completedQuests, [id]: true });
-  };
+  }
+};
 
   const handleAddQuest = () => {
     if (!newQuestText || !newQuestXP) return;
