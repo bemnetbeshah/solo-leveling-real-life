@@ -15,16 +15,29 @@ function App() {
   const [newQuestText, setNewQuestText] = useState("");
   const [newQuestXP, setNewQuestXP] = useState("");
 
-  const handleQuestComplete = (id, questXP) => {
-    if (completedQuests[id]) return;
+  const XP_PER_LEVEL = 100;
 
-    const totalXP = xp + questXP;
-    const newLevel = level + Math.floor(totalXP / 100);
-    const remainingXP = totalXP % 100;
+  const getTotalXP = () => xp + (level - 1) * XP_PER_LEVEL;
 
-    setXp(remainingXP);
+  const updateFromTotalXP = (total) => {
+    if (total < 0) total = 0;
+    const newLevel = Math.floor(total / XP_PER_LEVEL) + 1;
+    const remainingXP = total % XP_PER_LEVEL;
     setLevel(newLevel);
-    setCompletedQuests({ ...completedQuests, [id]: true });
+    setXp(remainingXP);
+  };
+
+  const handleQuestToggle = (id, questXP, checked) => {
+    const totalXP = getTotalXP() + (checked ? questXP : -questXP);
+    updateFromTotalXP(totalXP);
+
+    const updated = { ...completedQuests };
+    if (checked) {
+      updated[id] = true;
+    } else {
+      delete updated[id];
+    }
+    setCompletedQuests(updated);
   };
 
   const handleAddQuest = () => {
@@ -52,12 +65,12 @@ function App() {
       <div className="bg-gray-800 rounded-lg p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
           <span className="text-lg font-semibold">Level {level}</span>
-          <span className="text-sm text-gray-400">{xp} XP</span>
+          <span className="text-sm text-gray-400" data-testid="xp-display">{xp} XP</span>
         </div>
         <div className="w-full bg-gray-700 h-3 rounded">
           <div
             className="bg-green-400 h-3 rounded transition-all duration-300"
-            style={{ width: `${(xp / 100) * 100}%` }}
+            style={{ width: `${xp}%` }}
           ></div>
         </div>
       </div>
@@ -71,7 +84,9 @@ function App() {
               <input
                 type="checkbox"
                 checked={completedQuests[quest.id] || false}
-                onChange={() => handleQuestComplete(quest.id, quest.xp)}
+                onChange={(e) =>
+                  handleQuestToggle(quest.id, quest.xp, e.target.checked)
+                }
                 className="accent-green-500"
               />
               <span className={completedQuests[quest.id] ? "line-through text-gray-400" : ""}>
