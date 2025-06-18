@@ -1,31 +1,34 @@
 // src/Router.js
-import { useEffect, useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
-
 import Login from "./Login";
 import Register from "./Register";
 import App from "./App";
+import { auth } from "./firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+
+// Protect routes based on user auth
+function PrivateRoute({ children }) {
+  const [user, loading] = useAuthState(auth);
+
+  if (loading) return <div className="text-white p-6">Loading...</div>;
+  return user ? children : <Navigate to="/login" />;
+}
 
 export default function AppRouter() {
-  const [user, setUser] = useState(undefined); // undefined = still loading
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  if (user === undefined) return null; // or a loading spinner
-
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
-        <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
-        <Route path="/" element={user ? <App /> : <Navigate to="/login" />} />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <App />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Router>
   );
