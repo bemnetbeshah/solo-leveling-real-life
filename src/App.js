@@ -1,5 +1,55 @@
 import { useState, useEffect } from "react";
 
+// AttributeCircle component for circular attribute display
+function AttributeCircle({ icon, label, value, color }) {
+  // Clamp value between 0 and 100
+  const percent = Math.max(0, Math.min(100, value));
+  const radius = 32;
+  const stroke = 6;
+  const normalizedRadius = radius - stroke / 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const offset = circumference - (percent / 100) * circumference;
+
+  return (
+    <div className="flex flex-col items-center mx-2">
+      <svg height={radius * 2} width={radius * 2}>
+        <circle
+          stroke="#2d3748"
+          fill="transparent"
+          strokeWidth={stroke}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+        <circle
+          stroke={color}
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+          style={{ transition: 'stroke-dashoffset 0.5s' }}
+        />
+        <text
+          x="50%"
+          y="54%"
+          textAnchor="middle"
+          dy=".3em"
+          fontSize="18"
+          fill="#fff"
+        >
+          {percent}
+        </text>
+      </svg>
+      <span className="text-2xl mt-1" title={label}>{icon}</span>
+      <span className="capitalize text-sm mt-1 text-gray-300">{label}</span>
+    </div>
+  );
+}
+
 // Main App component for the Solo Leveling Real Life app
 function App() {
   // Helper function to load data from localStorage or use a default value
@@ -157,15 +207,14 @@ function App() {
 
       {/* Attributes section */}
       <div className="bg-gray-800 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-bold mb-2">Your Attributes</h2>
-        <ul className="grid grid-cols-2 gap-2 text-sm">
-          {Object.entries(stats).map(([stat, value]) => (
-            <li key={stat} className="flex justify-between">
-              <span className="capitalize">{stat}</span>
-              <span className="text-green-400 font-semibold">{value}</span>
-            </li>
-          ))}
-        </ul>
+        <h2 className="text-xl font-bold mb-4">Your Attributes</h2>
+        <div className="flex flex-row justify-center items-center">
+          <AttributeCircle icon="🧘" label="spiritual" value={stats.spiritual} color="#a78bfa" />
+          <AttributeCircle icon="🧠" label="mindfulness" value={stats.mindfulness} color="#34d399" />
+          <AttributeCircle icon="💬" label="charisma" value={stats.charisma} color="#fbbf24" />
+          <AttributeCircle icon="💪" label="strength" value={stats.strength} color="#60a5fa" />
+          <AttributeCircle icon="🔥" label="discipline" value={stats.discipline} color="#f87171" />
+        </div>
       </div>
 
       {/* Quest List section */}
