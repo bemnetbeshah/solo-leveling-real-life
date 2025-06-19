@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "./firebase";
+import { useNavigate } from "react-router-dom";
 
 // AttributeCircle component for circular attribute display
 function AttributeCircle({ icon, label, value, color }) {
@@ -72,6 +75,18 @@ function App() {
       { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
     ])
   );
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate("/login"); // Redirect to login screen
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
+
   // State for user stats (attributes)
   const [stats, setStats] = useState(() =>
     JSON.parse(localStorage.getItem("stats")) ?? {
@@ -191,6 +206,15 @@ function App() {
   // Render the main UI
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded"
+        >
+          Logout
+        </button>
+      </div>
+
       {/* XP Bar section */}
       <div className="bg-gray-800 rounded-lg p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
