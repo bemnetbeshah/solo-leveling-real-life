@@ -146,10 +146,11 @@ function App() {
         level,
         stats,
         quests,
-        completedQuests
+        completedQuests, 
+        lastLoginDate,
       });
     }
-  }, [xp, level, stats, quests, completedQuests, user, loadingUserData]);
+  }, [xp, level, stats, quests, completedQuests, lastLoginDate, user, loadingUserData]);
 
   // Handler for completing or uncompleting a quest
   const handleQuestComplete = (id, questXP) => {
