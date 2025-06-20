@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { signOut, onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
 
 // AttributeCircle component for circular attribute display
 function AttributeCircle({ icon, label, value, color }) {
@@ -82,6 +84,11 @@ function App() {
       discipline: 0,
     }
   );
+  // State for user email
+  const [userEmail, setUserEmail] = useState("");
+  // State for new custom quest input (text and XP)
+  const [newQuestText, setNewQuestText] = useState("");
+  const [newQuestXP, setNewQuestXP] = useState("");
 
   // Persist XP to localStorage whenever it changes
   useEffect(() => {
@@ -108,9 +115,13 @@ function App() {
     localStorage.setItem("stats", JSON.stringify(stats));
   }, [stats]);
 
-  // State for new custom quest input (text and XP)
-  const [newQuestText, setNewQuestText] = useState("");
-  const [newQuestXP, setNewQuestXP] = useState("");
+  // Listen for authentication state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUserEmail(user?.email || "");
+    });
+    return unsubscribe;
+  }, []);
 
   // Handler for completing or uncompleting a quest
   const handleQuestComplete = (id, questXP) => {
@@ -188,9 +199,33 @@ function App() {
     setNewQuestXP("");
   };
 
+  // Handler for user logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "/login";
+    } catch (err) {
+      alert("Logout failed");
+    }
+  };
+
   // Render the main UI
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="flex flex-col items-end mb-4">
+        {userEmail && (
+          <span className="text-xs text-gray-300 mb-1 px-2 py-1 bg-gray-800 rounded font-mono select-all">
+            {userEmail}
+          </span>
+        )}
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded font-semibold shadow transition-colors"
+        >
+          Logout
+        </button>
+      </div>
+
       {/* XP Bar section */}
       <div className="bg-gray-800 rounded-lg p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
