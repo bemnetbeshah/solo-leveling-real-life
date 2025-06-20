@@ -78,6 +78,8 @@ function App() {
 
   const [user, setUser] = useState(null);
   const [loadingUserData, setLoadingUserData] = useState(true); // show spinner until data loads
+  const [lastLoginDate, setLastLoginDate] = useState(() => load("lastLoginDate", ""));
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -101,6 +103,7 @@ function App() {
           if (data.lastLoginDate !== today) {
             setCompletedQuests({});
             // Save the reset to Firestore
+            setLastLoginDate(today);
             saveUserData(firebaseUser.uid, {
               ...data,
               completedQuests: {},
