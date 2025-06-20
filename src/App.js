@@ -77,6 +77,14 @@ function App() {
   );
 
   const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUserEmail(user?.email || "");
+    });
+    return unsubscribe;
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -206,7 +214,8 @@ function App() {
   // Render the main UI
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-4 flex-col items-end">
+        <span className="text-xs text-gray-400 mb-1">{userEmail}</span>
         <button
           onClick={handleLogout}
           className="bg-red-600 hover:bg-red-700 text-white py-1 px-4 rounded"
