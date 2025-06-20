@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
+import { loadUserData, saveUserData } from "./firestoreHelpers";
 
 // AttributeCircle component for circular attribute display
 function AttributeCircle({ icon, label, value, color }) {
@@ -74,6 +75,39 @@ function App() {
       { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
     ])
   );
+
+  const [user, setUser] = useState(null);
+  const [loadingUserData, setLoadingUserData] = useState(true); // show spinner until data loads
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        setUserEmail(firebaseUser.email);
+        const data = await loadUserData(firebaseUser.uid);
+        if (data) {
+          setXp(data.xp ?? 0);
+          setLevel(data.level ?? 1);
+          setStats(data.stats ?? {
+            spiritual: 0,
+            mindfulness: 0,
+            charisma: 0,
+            strength: 0,
+            discipline: 0,
+          });
+          setQuests(data.quests ?? []);
+          setCompletedQuests(data.completedQuests ?? {});
+        }
+      } else {
+        setUser(null);
+        setUserEmail("");
+      }
+      setLoadingUserData(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // State for user stats (attributes)
   const [stats, setStats] = useState(() =>
     JSON.parse(localStorage.getItem("stats")) ?? {
@@ -90,38 +124,17 @@ function App() {
   const [newQuestText, setNewQuestText] = useState("");
   const [newQuestXP, setNewQuestXP] = useState("");
 
-  // Persist XP to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("xp", JSON.stringify(xp));
-  }, [xp]);
-
-  // Persist level to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("level", JSON.stringify(level));
-  }, [level]);
-
-  // Persist completed quests to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("completedQuests", JSON.stringify(completedQuests));
-  }, [completedQuests]);
-
-  // Persist quests to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("quests", JSON.stringify(quests));
-  }, [quests]);
-
-  // Persist stats to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("stats", JSON.stringify(stats));
-  }, [stats]);
-
-  // Listen for authentication state changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUserEmail(user?.email || "");
-    });
-    return unsubscribe;
-  }, []);
+    if (user && !loadingUserData) {
+      saveUserData(user.uid, {
+        xp,
+        level,
+        stats,
+        quests,
+        completedQuests
+      });
+    }
+  }, [xp, level, stats, quests, completedQuests, user, loadingUserData]);
 
   // Handler for completing or uncompleting a quest
   const handleQuestComplete = (id, questXP) => {
