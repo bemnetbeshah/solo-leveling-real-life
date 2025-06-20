@@ -86,6 +86,9 @@ function App() {
   );
   // State for user email
   const [userEmail, setUserEmail] = useState("");
+  // State for new custom quest input (text and XP)
+  const [newQuestText, setNewQuestText] = useState("");
+  const [newQuestXP, setNewQuestXP] = useState("");
 
   // Persist XP to localStorage whenever it changes
   useEffect(() => {
