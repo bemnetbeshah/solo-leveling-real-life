@@ -96,7 +96,19 @@ function App() {
             discipline: 0,
           });
           setQuests(data.quests ?? []);
-          setCompletedQuests(data.completedQuests ?? {});
+          // --- Daily Quest Reset Logic ---
+          const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+          if (data.lastLoginDate !== today) {
+            setCompletedQuests({});
+            // Save the reset to Firestore
+            saveUserData(firebaseUser.uid, {
+              ...data,
+              completedQuests: {},
+              lastLoginDate: today,
+            });
+          } else {
+            setCompletedQuests(data.completedQuests ?? {});
+          }
         }
       } else {
         setUser(null);
