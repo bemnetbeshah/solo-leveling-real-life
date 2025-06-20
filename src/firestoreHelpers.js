@@ -24,8 +24,12 @@ const defaultUserData = {
 
 // Save user data (overwrites entire document)
 export async function saveUserData(uid, data) {
-  const userRef = doc(db, "users", uid);
-  await setDoc(userRef, data);
+  try {
+    console.log("Saving data for user:", uid, data); // ✅ TEMPORARY LOG
+    await setDoc(doc(db, "users", uid), data);
+  } catch (err) {
+    console.error("Error saving user data:", err);
+  }
 }
 
 // Update partial data (e.g., just stats or xp)

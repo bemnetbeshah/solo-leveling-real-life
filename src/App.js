@@ -78,6 +78,9 @@ function App() {
 
   const [user, setUser] = useState(null);
   const [loadingUserData, setLoadingUserData] = useState(true); // show spinner until data loads
+  // Remove lastLoginDate state
+  // const [lastLoginDate, setLastLoginDate] = useState(() => load("lastLoginDate", ""));
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -96,7 +99,19 @@ function App() {
             discipline: 0,
           });
           setQuests(data.quests ?? []);
-          setCompletedQuests(data.completedQuests ?? {});
+          // --- Daily Quest Reset Logic ---
+          const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
+          if (data.lastLoginDate !== today) {
+            setCompletedQuests({});
+            // Save the reset to Firestore with updated lastLoginDate
+            saveUserData(firebaseUser.uid, {
+              ...data,
+              completedQuests: {},
+              lastLoginDate: today,
+            });
+          } else {
+            setCompletedQuests(data.completedQuests ?? {});
+          }
         }
       } else {
         setUser(null);
@@ -131,7 +146,8 @@ function App() {
         level,
         stats,
         quests,
-        completedQuests
+        completedQuests,
+        lastLoginDate: new Date().toISOString().slice(0, 10),
       });
     }
   }, [xp, level, stats, quests, completedQuests, user, loadingUserData]);
