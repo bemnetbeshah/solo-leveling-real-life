@@ -78,7 +78,8 @@ function App() {
 
   const [user, setUser] = useState(null);
   const [loadingUserData, setLoadingUserData] = useState(true); // show spinner until data loads
-  const [lastLoginDate, setLastLoginDate] = useState(() => load("lastLoginDate", ""));
+  // Remove lastLoginDate state
+  // const [lastLoginDate, setLastLoginDate] = useState(() => load("lastLoginDate", ""));
 
 
   useEffect(() => {
@@ -102,8 +103,7 @@ function App() {
           const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
           if (data.lastLoginDate !== today) {
             setCompletedQuests({});
-            // Save the reset to Firestore
-            setLastLoginDate(today);
+            // Save the reset to Firestore with updated lastLoginDate
             saveUserData(firebaseUser.uid, {
               ...data,
               completedQuests: {},
@@ -146,11 +146,11 @@ function App() {
         level,
         stats,
         quests,
-        completedQuests, 
-        lastLoginDate,
+        completedQuests,
+        lastLoginDate: new Date().toISOString().slice(0, 10),
       });
     }
-  }, [xp, level, stats, quests, completedQuests, lastLoginDate, user, loadingUserData]);
+  }, [xp, level, stats, quests, completedQuests, user, loadingUserData]);
 
   // Handler for completing or uncompleting a quest
   const handleQuestComplete = (id, questXP) => {
