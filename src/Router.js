@@ -7,6 +7,7 @@ import { auth } from "./firebase";
 import Login from "./Login";
 import Register from "./Register";
 import App from "./App";
+import GoalManagement from "./pages/GoalManagement";
 
 export default function RouterComponent() {
   const [user, setUser] = useState(undefined); // undefined = loading, null = logged out, object = logged in
@@ -28,6 +29,7 @@ export default function RouterComponent() {
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
         <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
         <Route path="/" element={user ? <App /> : <Navigate to="/login" />} />
+        <Route path="/goals" element={user ? <GoalManagement /> : <Navigate to="/login" />} />
         {/* Optional: 404 route */}
         <Route path="*" element={<Navigate to={user ? "/" : "/login"} />} />
       </Routes>
