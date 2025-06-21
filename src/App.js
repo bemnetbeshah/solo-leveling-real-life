@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import { loadUserData, saveUserData } from "./firestoreHelpers";
+import { Link } from "react-router-dom";
 
 // AttributeCircle component for circular attribute display
 function AttributeCircle({ icon, label, value, color }) {
@@ -264,7 +265,15 @@ function App() {
           Logout
         </button>
       </div>
-
+      {/* Navigation link to Goal Management */}
+      <div className="mb-4 flex justify-start">
+        <Link
+          to="/goals"
+          className="text-blue-400 underline hover:text-blue-300 text-base sm:text-lg font-semibold"
+        >
+          ➕ Manage Goals
+        </Link>
+      </div>
       {/* XP Bar section */}
       <div className="bg-gray-800 rounded-lg p-4 mb-6">
         <div className="flex justify-between items-center mb-2">
