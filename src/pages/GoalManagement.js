@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { db, auth } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { Link } from "react-router-dom";
 
 export default function GoalManagement() {
   const [habitGoals, setHabitGoals] = useState([]);
@@ -87,6 +88,14 @@ export default function GoalManagement() {
 
   return (
     <div className="p-6 text-white bg-gray-900 min-h-screen">
+      <div className="mb-4 flex justify-start">
+        <Link
+          to="/"
+          className="text-blue-400 underline hover:text-blue-300 text-base sm:text-lg font-semibold"
+        >
+          ← Back to Main UI
+        </Link>
+      </div>
       <h1 className="text-2xl font-bold mb-4">Goal Management</h1>
 
       <section className="mb-6">
