@@ -5,16 +5,26 @@ import { loadUserData, saveUserData } from "./firestoreHelpers";
 
 // AttributeCircle component for circular attribute display
 function AttributeCircle({ icon, label, value, color }) {
-  // Clamp value between 0 and 100
+  // Responsive: detect if screen width is less than 640px (Tailwind's sm breakpoint)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Set values based on screen size
+  const radius = isMobile ? 20 : 32;
+  const stroke = isMobile ? 4 : 6;
+  const fontSize = isMobile ? 12 : 18;
   const percent = Math.max(0, Math.min(100, value));
-  const radius = 32;
-  const stroke = 6;
   const normalizedRadius = radius - stroke / 2;
   const circumference = normalizedRadius * 2 * Math.PI;
   const offset = circumference - (percent / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center mx-2">
+    <div className="flex flex-col items-center mx-1 sm:mx-2" style={{ minWidth: isMobile ? 48 : 72 }}>
       <svg height={radius * 2} width={radius * 2}>
         <circle
           stroke="#2d3748"
@@ -41,14 +51,14 @@ function AttributeCircle({ icon, label, value, color }) {
           y="54%"
           textAnchor="middle"
           dy=".3em"
-          fontSize="18"
+          fontSize={fontSize}
           fill="#fff"
         >
           {percent}
         </text>
       </svg>
-      <span className="text-2xl mt-1" title={label}>{icon}</span>
-      <span className="capitalize text-sm mt-1 text-gray-300">{label}</span>
+      <span className={isMobile ? "text-lg mt-1" : "text-2xl mt-1"} title={label}>{icon}</span>
+      <span className={isMobile ? "capitalize text-xs mt-1 text-gray-300" : "capitalize text-sm mt-1 text-gray-300"}>{label}</span>
     </div>
   );
 }
@@ -272,7 +282,7 @@ function App() {
       {/* Attributes section */}
       <div className="bg-gray-800 rounded-lg p-4 mb-6">
         <h2 className="text-xl font-bold mb-4">Your Attributes</h2>
-        <div className="flex flex-row justify-center items-center">
+        <div className="flex flex-row justify-center items-center overflow-x-auto">
           <AttributeCircle icon="🧘" label="spiritual" value={stats.spiritual} color="#a78bfa" />
           <AttributeCircle icon="🧠" label="mindfulness" value={stats.mindfulness} color="#34d399" />
           <AttributeCircle icon="💬" label="charisma" value={stats.charisma} color="#fbbf24" />
