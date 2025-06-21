@@ -13,33 +13,35 @@ export default function GoalManagement() {
   const [userId, setUserId] = useState(null);
   const [habitGoalError, setHabitGoalError] = useState("");
   const [materialGoalError, setMaterialGoalError] = useState("");
+  const [goalsLoaded, setGoalsLoaded] = useState(false); // Only fetch goals from Firestore on first load, not on every auth change
 
   useEffect(() => {
+    if (goalsLoaded) return;
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
+      if (user && !goalsLoaded) {
         setUserId(user.uid);
         const ref = doc(db, "users", user.uid);
         const snap = await getDoc(ref);
         if (snap.exists()) {
           const data = snap.data();
+          console.log("Loaded habit goals:", data.habitGoals);
+          console.log("Loaded material goals:", data.materialGoals);
           setHabitGoals(data.habitGoals || []);
           setMaterialGoals(data.materialGoals || []);
         }
+        setGoalsLoaded(true);
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [goalsLoaded]);
 
   useEffect(() => {
     console.log("User ID is:", userId); // Debug log to verify userId exists
   }, [userId]);
 
+  // Only call saveGoals after goals change, not on every render
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
-    if (!userId) {
-      console.warn("saveGoals called but userId is null");
-      return;
-    }
-    console.log("Saving goals to Firestore:", { newHabitGoals, newMaterialGoals });
+    if (!userId) return;
     const ref = doc(db, "users", userId);
     await updateDoc(ref, {
       habitGoals: newHabitGoals,
