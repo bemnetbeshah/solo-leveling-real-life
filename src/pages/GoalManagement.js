@@ -51,6 +51,20 @@ export default function GoalManagement() {
     saveGoals(habitGoals, updated);
   };
 
+  // Delete a habit goal
+  const deleteHabitGoal = (id) => {
+    const updated = habitGoals.filter((goal) => goal.id !== id);
+    setHabitGoals(updated);
+    saveGoals(updated, materialGoals);
+  };
+
+  // Delete a material goal
+  const deleteMaterialGoal = (id) => {
+    const updated = materialGoals.filter((goal) => goal.id !== id);
+    setMaterialGoals(updated);
+    saveGoals(habitGoals, updated);
+  };
+
   return (
     <div className="p-6 text-white bg-gray-900 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Goal Management</h1>
@@ -69,7 +83,16 @@ export default function GoalManagement() {
         </div>
         <ul className="space-y-2">
           {habitGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-3 rounded">{goal.text}</li>
+            <li key={goal.id} className="bg-gray-800 p-3 rounded flex justify-between items-center">
+              <span>{goal.text}</span>
+              <button
+                onClick={() => deleteHabitGoal(goal.id)}
+                className="ml-2 text-red-400 hover:text-red-600 text-lg font-bold px-2"
+                title="Delete Habit Goal"
+              >
+                ×
+              </button>
+            </li>
           ))}
         </ul>
       </section>
@@ -94,8 +117,17 @@ export default function GoalManagement() {
         </div>
         <ul className="space-y-2">
           {materialGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-3 rounded">
-              {goal.text} <span className="text-sm text-gray-400">(by {goal.deadline})</span>
+            <li key={goal.id} className="bg-gray-800 p-3 rounded flex justify-between items-center">
+              <span>
+                {goal.text} <span className="text-sm text-gray-400">(by {goal.deadline})</span>
+              </span>
+              <button
+                onClick={() => deleteMaterialGoal(goal.id)}
+                className="ml-2 text-red-400 hover:text-red-600 text-lg font-bold px-2"
+                title="Delete Material Goal"
+              >
+                ×
+              </button>
             </li>
           ))}
         </ul>
