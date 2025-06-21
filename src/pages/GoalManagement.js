@@ -10,6 +10,8 @@ export default function GoalManagement() {
   const [newMaterialGoal, setNewMaterialGoal] = useState("");
   const [deadline, setDeadline] = useState("");
   const [userId, setUserId] = useState(null);
+  const [habitGoalError, setHabitGoalError] = useState("");
+  const [materialGoalError, setMaterialGoalError] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -37,6 +39,11 @@ export default function GoalManagement() {
   };
 
   const addHabitGoal = () => {
+    if (!newHabitGoal.trim()) {
+      setHabitGoalError("You didn't write anything");
+      return;
+    }
+    setHabitGoalError("");
     const updated = [...habitGoals, { id: Date.now().toString(), text: newHabitGoal, frequency: "daily", active: true }];
     setHabitGoals(updated);
     setNewHabitGoal("");
@@ -44,6 +51,11 @@ export default function GoalManagement() {
   };
 
   const addMaterialGoal = () => {
+    if (!newMaterialGoal.trim()) {
+      setMaterialGoalError("You didn't write anything");
+      return;
+    }
+    setMaterialGoalError("");
     const updated = [...materialGoals, { id: Date.now().toString(), text: newMaterialGoal, deadline }];
     setMaterialGoals(updated);
     setNewMaterialGoal("");
@@ -81,6 +93,7 @@ export default function GoalManagement() {
           />
           <button onClick={addHabitGoal} className="bg-blue-600 px-4 rounded">Add</button>
         </div>
+        {habitGoalError && <div className="text-red-400 mb-2 text-sm">{habitGoalError}</div>}
         <ul className="space-y-2">
           {habitGoals.map((goal) => (
             <li key={goal.id} className="bg-gray-800 p-3 rounded flex justify-between items-center">
@@ -115,6 +128,7 @@ export default function GoalManagement() {
           />
           <button onClick={addMaterialGoal} className="bg-green-600 px-4 rounded">Add</button>
         </div>
+        {materialGoalError && <div className="text-red-400 mb-2 text-sm">{materialGoalError}</div>}
         <ul className="space-y-2">
           {materialGoals.map((goal) => (
             <li key={goal.id} className="bg-gray-800 p-3 rounded flex justify-between items-center">
