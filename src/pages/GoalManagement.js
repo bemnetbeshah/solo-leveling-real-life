@@ -29,8 +29,16 @@ export default function GoalManagement() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    console.log("User ID is:", userId); // Debug log to verify userId exists
+  }, [userId]);
+
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn("saveGoals called but userId is null");
+      return;
+    }
+    console.log("Saving goals to Firestore:", { newHabitGoals, newMaterialGoals });
     const ref = doc(db, "users", userId);
     await updateDoc(ref, {
       habitGoals: newHabitGoals,
