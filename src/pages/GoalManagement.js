@@ -38,23 +38,6 @@ export default function GoalManagement() {
     return () => unsubscribe();
   }, []);
 
-  // Force refresh goals on page re-enter
-  useEffect(() => {
-    const fetchGoals = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const ref = doc(db, "users", user.uid);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const data = snap.data();
-          setHabitGoals(data.habitGoals || []);
-          setMaterialGoals(data.materialGoals || []);
-        }
-      }
-    };
-    fetchGoals();
-  }, []);
-
   useEffect(() => {
     console.log("User ID is:", userId); // Debug log to verify userId exists
   }, [userId]);
