@@ -21,17 +21,25 @@ export default function GoalManagement() {
       if (user) {
         const ref = doc(db, "users", user.uid);
         const snap = await getDoc(ref);
+        let habitGoalsData = [];
+        let materialGoalsData = [];
         if (snap.exists()) {
           const data = snap.data();
-          setHabitGoals(data.habitGoals || []);
-          setMaterialGoals(data.materialGoals || []);
+          habitGoalsData = data.habitGoals || [];
+          materialGoalsData = data.materialGoals || [];
         }
+        setHabitGoals(habitGoalsData);
+        console.log("setHabitGoals after login/navigation:", habitGoalsData);
+        setMaterialGoals(materialGoalsData);
+        console.log("setMaterialGoals after login/navigation:", materialGoalsData);
         setUserId(user.uid);
         setLoadingGoals(false);
       } else {
         setUserId(null);
         setHabitGoals([]);
+        console.log("setHabitGoals after logout/navigation:", []);
         setMaterialGoals([]);
+        console.log("setMaterialGoals after logout/navigation:", []);
         setLoadingGoals(false);
       }
     });
@@ -90,6 +98,12 @@ export default function GoalManagement() {
     setMaterialGoals(updated);
     saveGoals(habitGoals, updated);
   };
+
+  // Persist goals to localStorage on change
+  useEffect(() => {
+    localStorage.setItem("habitGoals", JSON.stringify(habitGoals));
+    localStorage.setItem("materialGoals", JSON.stringify(materialGoals));
+  }, [habitGoals, materialGoals]);
 
   if (loadingGoals) return <p className="text-center text-gray-400 py-10">Loading goals...</p>;
 
