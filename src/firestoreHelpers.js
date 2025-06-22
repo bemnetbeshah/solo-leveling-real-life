@@ -19,14 +19,16 @@ const defaultUserData = {
     { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { discipline: 3 } },
     { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
   ],
-  completedQuests: {}
+  completedQuests: {},
+  habitGoals: [],
+  materialGoals: []
 };
 
-// Save user data (overwrites entire document)
+// Save user data (merges with existing document to preserve other fields)
 export async function saveUserData(uid, data) {
   try {
     console.log("Saving data for user:", uid, data); // ✅ TEMPORARY LOG
-    await setDoc(doc(db, "users", uid), data);
+    await setDoc(doc(db, "users", uid), data, { merge: true });
   } catch (err) {
     console.error("Error saving user data:", err);
   }
@@ -44,7 +46,20 @@ export async function loadUserData(uid) {
   const snapshot = await getDoc(userRef);
 
   if (snapshot.exists()) {
-    return snapshot.data();
+    const data = snapshot.data();
+    // Ensure goal fields exist for existing users
+    const updatedData = {
+      ...data,
+      habitGoals: data.habitGoals || [],
+      materialGoals: data.materialGoals || []
+    };
+    
+    // If we had to add missing fields, save the updated data
+    if (!data.habitGoals || !data.materialGoals) {
+      await setDoc(userRef, updatedData, { merge: true });
+    }
+    
+    return updatedData;
   } else {
     // Create a new document with default data
     await setDoc(userRef, defaultUserData);

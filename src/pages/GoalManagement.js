@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { db, auth } from "../firebase";
-import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { loadUserData, saveUserData } from "../firestoreHelpers";
 import { Link } from "react-router-dom";
 
 export default function GoalManagement() {
@@ -15,30 +15,10 @@ export default function GoalManagement() {
   const [materialGoalError, setMaterialGoalError] = useState("");
   const [loadingGoals, setLoadingGoals] = useState(true);
 
-  const ensureUserDocInitialized = async (uid) => {
-    const ref = doc(db, "users", uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      await setDoc(ref, {
-        habitGoals: [],
-        materialGoals: []
-      });
-    } else {
-      const data = snap.data();
-      const update = {};
-      if (!Array.isArray(data.habitGoals)) update.habitGoals = [];
-      if (!Array.isArray(data.materialGoals)) update.materialGoals = [];
-      if (Object.keys(update).length > 0) {
-        await setDoc(ref, update, { merge: true });
-      }
-    }
-  };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
-        await ensureUserDocInitialized(user.uid);
         await fetchGoals(user.uid);
       } else {
         setUserId(null);
@@ -51,17 +31,17 @@ export default function GoalManagement() {
   }, []);
 
   const fetchGoals = async (uid) => {
-    const ref = doc(db, "users", uid);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const data = snap.data();
-      setHabitGoals(data.habitGoals || []);
-      setMaterialGoals(data.materialGoals || []);
+    try {
+      const userData = await loadUserData(uid);
+      setHabitGoals(userData.habitGoals || []);
+      setMaterialGoals(userData.materialGoals || []);
+    } catch (error) {
+      console.error("Error fetching goals:", error);
     }
     setLoadingGoals(false);
   };
 
-  const addHabitGoal = () => {
+  const addHabitGoal = async () => {
     if (!newHabitGoal.trim()) {
       setHabitGoalError("You didn't write anything");
       return;
@@ -69,11 +49,11 @@ export default function GoalManagement() {
     setHabitGoalError("");
     const updated = [...habitGoals, { id: Date.now().toString(), text: newHabitGoal, frequency: "daily", active: true }];
     setHabitGoals(updated);
-    saveGoals(updated, materialGoals);
+    await saveGoals(updated, materialGoals);
     setNewHabitGoal("");
   };
 
-  const addMaterialGoal = () => {
+  const addMaterialGoal = async () => {
     if (!newMaterialGoal.trim()) {
       setMaterialGoalError("You didn't write anything");
       return;
@@ -81,30 +61,29 @@ export default function GoalManagement() {
     setMaterialGoalError("");
     const updated = [...materialGoals, { id: Date.now().toString(), text: newMaterialGoal, deadline }];
     setMaterialGoals(updated);
-    saveGoals(habitGoals, updated);
+    await saveGoals(habitGoals, updated);
     setNewMaterialGoal("");
     setDeadline("");
   };
 
-  const deleteHabitGoal = (id) => {
+  const deleteHabitGoal = async (id) => {
     const updated = habitGoals.filter((goal) => goal.id !== id);
     setHabitGoals(updated);
-    saveGoals(updated, materialGoals);
+    await saveGoals(updated, materialGoals);
   };
 
-  const deleteMaterialGoal = (id) => {
+  const deleteMaterialGoal = async (id) => {
     const updated = materialGoals.filter((goal) => goal.id !== id);
     setMaterialGoals(updated);
-    saveGoals(habitGoals, updated);
+    await saveGoals(habitGoals, updated);
   };
 
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
     if (!userId) return;
-    const ref = doc(db, "users", userId);
-    await setDoc(ref, {
+    await saveUserData(userId, {
       habitGoals: newHabitGoals,
       materialGoals: newMaterialGoals
-    }, { merge: true });
+    });
   };
 
   if (loadingGoals) return <p className="text-center text-gray-400 py-10">Loading goals...</p>;
