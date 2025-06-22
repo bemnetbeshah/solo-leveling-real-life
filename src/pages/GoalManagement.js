@@ -1,8 +1,29 @@
 import { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { loadUserData, saveUserData } from "../firestoreHelpers";
+import { loadUserData, saveUserData, addMultipleQuestsToFirestore } from "../firestoreHelpers";
+// import { getQuestSuggestions, getFallbackQuests } from "../openaiHelpers";
+import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { Sparkles, Loader2 } from "lucide-react";
+
+// Fallback quests function (temporary until we fix AI)
+function getFallbackQuests(goalText, goalType = "habit") {
+  const fallbackQuests = {
+    habit: [
+      { text: `Set aside 30 minutes for ${goalText}`, xp: 20, stats: { discipline: 2 } },
+      { text: `Create a checklist for ${goalText}`, xp: 15, stats: { mindfulness: 1 } },
+      { text: `Track progress on ${goalText}`, xp: 25, stats: { discipline: 3 } }
+    ],
+    material: [
+      { text: `Research best practices for ${goalText}`, xp: 30, stats: { discipline: 2 } },
+      { text: `Create a plan to achieve ${goalText}`, xp: 25, stats: { mindfulness: 2 } },
+      { text: `Set milestones for ${goalText}`, xp: 20, stats: { discipline: 1 } }
+    ]
+  };
+
+  return fallbackQuests[goalType] || fallbackQuests.habit;
+}
 
 export default function GoalManagement() {
   const [habitGoals, setHabitGoals] = useState([]);
@@ -14,6 +35,7 @@ export default function GoalManagement() {
   const [habitGoalError, setHabitGoalError] = useState("");
   const [materialGoalError, setMaterialGoalError] = useState("");
   const [loadingGoals, setLoadingGoals] = useState(true);
+  const [generatingQuests, setGeneratingQuests] = useState({});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -51,6 +73,7 @@ export default function GoalManagement() {
     setHabitGoals(updated);
     await saveGoals(updated, materialGoals);
     setNewHabitGoal("");
+    toast.success("Habit goal added successfully!");
   };
 
   const addMaterialGoal = async () => {
@@ -64,18 +87,21 @@ export default function GoalManagement() {
     await saveGoals(habitGoals, updated);
     setNewMaterialGoal("");
     setDeadline("");
+    toast.success("Material goal added successfully!");
   };
 
   const deleteHabitGoal = async (id) => {
     const updated = habitGoals.filter((goal) => goal.id !== id);
     setHabitGoals(updated);
     await saveGoals(updated, materialGoals);
+    toast.success("Habit goal deleted!");
   };
 
   const deleteMaterialGoal = async (id) => {
     const updated = materialGoals.filter((goal) => goal.id !== id);
     setMaterialGoals(updated);
     await saveGoals(habitGoals, updated);
+    toast.success("Material goal deleted!");
   };
 
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
@@ -84,6 +110,44 @@ export default function GoalManagement() {
       habitGoals: newHabitGoals,
       materialGoals: newMaterialGoals
     });
+  };
+
+  const generateQuestsFromGoal = async (goal, goalType) => {
+    if (!userId) {
+      toast.error("Please log in to generate quests");
+      return;
+    }
+
+    setGeneratingQuests(prev => ({ ...prev, [goal.id]: true }));
+
+    try {
+      // Use fallback quests for now (we'll add AI back later)
+      console.log("Generating fallback quests for:", goal.text);
+      const fallbackQuests = getFallbackQuests(goal.text, goalType);
+      const quests = fallbackQuests.map((quest, index) => ({
+        id: Date.now() + index,
+        text: quest.text,
+        xp: quest.xp,
+        stats: quest.stats,
+        completed: false,
+        aiGenerated: false,
+        sourceGoal: goal.text
+      }));
+
+      // Add quests to Firestore
+      const success = await addMultipleQuestsToFirestore(quests, userId);
+      
+      if (success) {
+        toast.success(`Generated ${quests.length} quests from "${goal.text}"!`);
+      } else {
+        toast.error("Failed to save quests. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error generating quests:", error);
+      toast.error("Failed to generate quests. Please try again.");
+    } finally {
+      setGeneratingQuests(prev => ({ ...prev, [goal.id]: false }));
+    }
   };
 
   if (loadingGoals) return (
@@ -139,15 +203,33 @@ export default function GoalManagement() {
         {/* Habit Goals List */}
         <ul className="space-y-2 sm:space-y-3">
           {habitGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded flex justify-between items-center">
-              <span className="text-sm sm:text-base pr-2 break-words flex-1">{goal.text}</span>
-              <button
-                onClick={() => deleteHabitGoal(goal.id)}
-                className="ml-2 text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
-                title="Delete Habit Goal"
-              >
-                ×
-              </button>
+            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded">
+              <div className="flex justify-between items-start sm:items-center">
+                <span className="text-sm sm:text-base pr-2 break-words flex-1">{goal.text}</span>
+                <div className="flex gap-2 ml-2">
+                  <button
+                    onClick={() => generateQuestsFromGoal(goal, "habit")}
+                    disabled={generatingQuests[goal.id]}
+                    className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 flex-shrink-0"
+                    title="Generate AI quests for this goal"
+                  >
+                    {generatingQuests[goal.id] ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Sparkles size={14} />
+                    )}
+                    <span className="hidden sm:inline">Generate Quests</span>
+                    <span className="sm:hidden">AI</span>
+                  </button>
+                  <button
+                    onClick={() => deleteHabitGoal(goal.id)}
+                    className="text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
+                    title="Delete Habit Goal"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
@@ -196,20 +278,38 @@ export default function GoalManagement() {
         {/* Material Goals List */}
         <ul className="space-y-2 sm:space-y-3">
           {materialGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded flex justify-between items-start sm:items-center">
-              <div className="flex-1 pr-2">
-                <span className="text-sm sm:text-base break-words block">{goal.text}</span>
-                <span className="text-xs sm:text-sm text-gray-400 block mt-1">
-                  (by {goal.deadline})
-                </span>
+            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded">
+              <div className="flex justify-between items-start sm:items-center">
+                <div className="flex-1 pr-2">
+                  <span className="text-sm sm:text-base break-words block">{goal.text}</span>
+                  <span className="text-xs sm:text-sm text-gray-400 block mt-1">
+                    (by {goal.deadline})
+                  </span>
+                </div>
+                <div className="flex gap-2 ml-2">
+                  <button
+                    onClick={() => generateQuestsFromGoal(goal, "material")}
+                    disabled={generatingQuests[goal.id]}
+                    className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 flex-shrink-0"
+                    title="Generate AI quests for this goal"
+                  >
+                    {generatingQuests[goal.id] ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Sparkles size={14} />
+                    )}
+                    <span className="hidden sm:inline">Generate Quests</span>
+                    <span className="sm:hidden">AI</span>
+                  </button>
+                  <button
+                    onClick={() => deleteMaterialGoal(goal.id)}
+                    className="text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
+                    title="Delete Material Goal"
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => deleteMaterialGoal(goal.id)}
-                className="ml-2 text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
-                title="Delete Material Goal"
-              >
-                ×
-              </button>
             </li>
           ))}
         </ul>
