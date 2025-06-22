@@ -19,7 +19,21 @@ export default function GoalManagement() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
-        await ensureUserDoc(user.uid); // Ensure doc exists
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          await setDoc(ref, {
+            habitGoals: [],
+            materialGoals: []
+          });
+        } else {
+          const data = snap.data();
+          // Ensure default values if not present
+          await setDoc(ref, {
+            habitGoals: data.habitGoals ?? [],
+            materialGoals: data.materialGoals ?? []
+          }, { merge: true });
+        }
         await fetchGoals(user.uid);
       } else {
         setUserId(null);
@@ -31,24 +45,11 @@ export default function GoalManagement() {
     return () => unsubscribe();
   }, []);
 
-  const ensureUserDoc = async (uid) => {
-    const ref = doc(db, "users", uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      await setDoc(ref, {
-        habitGoals: [],
-        materialGoals: []
-      });
-    }
-  };
-
   const fetchGoals = async (uid) => {
     const ref = doc(db, "users", uid);
     const snap = await getDoc(ref);
     if (snap.exists()) {
       const data = snap.data();
-      console.log("Fetched habit goals:", data.habitGoals);
-      console.log("Fetched material goals:", data.materialGoals);
       setHabitGoals(data.habitGoals || []);
       setMaterialGoals(data.materialGoals || []);
     }
@@ -58,11 +59,10 @@ export default function GoalManagement() {
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
     if (!userId) return;
     const ref = doc(db, "users", userId);
-    await updateDoc(ref, {
+    await setDoc(ref, {
       habitGoals: newHabitGoals,
       materialGoals: newMaterialGoals
-    });
-    console.log("Saved goals to Firestore");
+    }, { merge: true });
   };
 
   const addHabitGoal = () => {
