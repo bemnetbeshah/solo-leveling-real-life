@@ -159,9 +159,11 @@ function App() {
         quests,
         completedQuests,
         lastLoginDate: new Date().toISOString().slice(0, 10),
+        habitGoals,
+        materialGoals
       });
     }
-  }, [xp, level, stats, quests, completedQuests, user, loadingUserData]);
+  }, [xp, level, stats, quests, completedQuests, user, loadingUserData, habitGoals, materialGoals]);
 
   // Handler for completing or uncompleting a quest
   const handleQuestComplete = (id, questXP) => {
