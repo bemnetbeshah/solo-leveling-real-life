@@ -50,6 +50,12 @@ export default function GoalManagement() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (userId) {
+      saveGoals(habitGoals, materialGoals);
+    }
+  }, [habitGoals, materialGoals]);
+
   const fetchGoals = async (uid) => {
     const ref = doc(db, "users", uid);
     const snap = await getDoc(ref);
@@ -79,7 +85,6 @@ export default function GoalManagement() {
     const updated = [...habitGoals, { id: Date.now().toString(), text: newHabitGoal, frequency: "daily", active: true }];
     setHabitGoals(updated);
     setNewHabitGoal("");
-    saveGoals(updated, materialGoals);
   };
 
   const addMaterialGoal = () => {
@@ -92,19 +97,16 @@ export default function GoalManagement() {
     setMaterialGoals(updated);
     setNewMaterialGoal("");
     setDeadline("");
-    saveGoals(habitGoals, updated);
   };
 
   const deleteHabitGoal = (id) => {
     const updated = habitGoals.filter((goal) => goal.id !== id);
     setHabitGoals(updated);
-    saveGoals(updated, materialGoals);
   };
 
   const deleteMaterialGoal = (id) => {
     const updated = materialGoals.filter((goal) => goal.id !== id);
     setMaterialGoals(updated);
-    saveGoals(habitGoals, updated);
   };
 
   if (loadingGoals) return <p className="text-center text-gray-400 py-10">Loading goals...</p>;
