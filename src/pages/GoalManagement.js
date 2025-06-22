@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db, auth } from "../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { Link } from "react-router-dom";
 
@@ -19,6 +19,7 @@ export default function GoalManagement() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
+        await ensureUserDoc(user.uid); // Ensure doc exists
         await fetchGoals(user.uid);
       } else {
         setUserId(null);
@@ -29,6 +30,17 @@ export default function GoalManagement() {
     });
     return () => unsubscribe();
   }, []);
+
+  const ensureUserDoc = async (uid) => {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        habitGoals: [],
+        materialGoals: []
+      });
+    }
+  };
 
   const fetchGoals = async (uid) => {
     const ref = doc(db, "users", uid);
