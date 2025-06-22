@@ -69,8 +69,8 @@ export default function GoalManagement() {
     setHabitGoalError("");
     const updated = [...habitGoals, { id: Date.now().toString(), text: newHabitGoal, frequency: "daily", active: true }];
     setHabitGoals(updated);
+    saveGoals(updated, materialGoals);
     setNewHabitGoal("");
-    saveGoals(updated, materialGoals); // Save immediately after update
   };
 
   const addMaterialGoal = () => {
@@ -81,21 +81,21 @@ export default function GoalManagement() {
     setMaterialGoalError("");
     const updated = [...materialGoals, { id: Date.now().toString(), text: newMaterialGoal, deadline }];
     setMaterialGoals(updated);
+    saveGoals(habitGoals, updated);
     setNewMaterialGoal("");
     setDeadline("");
-    saveGoals(habitGoals, updated); // Save immediately after update
   };
 
   const deleteHabitGoal = (id) => {
     const updated = habitGoals.filter((goal) => goal.id !== id);
     setHabitGoals(updated);
-    saveGoals(updated, materialGoals); // Save immediately after update
+    saveGoals(updated, materialGoals);
   };
 
   const deleteMaterialGoal = (id) => {
     const updated = materialGoals.filter((goal) => goal.id !== id);
     setMaterialGoals(updated);
-    saveGoals(habitGoals, updated); // Save immediately after update
+    saveGoals(habitGoals, updated);
   };
 
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
