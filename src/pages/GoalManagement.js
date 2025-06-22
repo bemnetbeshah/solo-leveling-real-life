@@ -15,42 +15,34 @@ export default function GoalManagement() {
   const [materialGoalError, setMaterialGoalError] = useState("");
   const [loadingGoals, setLoadingGoals] = useState(true);
 
-  // Always fetch goals on every mount and on page re-enter
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const ref = doc(db, "users", user.uid);
-        const snap = await getDoc(ref);
-        let habitGoalsData = [];
-        let materialGoalsData = [];
-        if (snap.exists()) {
-          const data = snap.data();
-          habitGoalsData = data.habitGoals || [];
-          materialGoalsData = data.materialGoals || [];
-        }
-        setHabitGoals(habitGoalsData);
-        console.log("setHabitGoals after login/navigation:", habitGoalsData);
-        setMaterialGoals(materialGoalsData);
-        console.log("setMaterialGoals after login/navigation:", materialGoalsData);
         setUserId(user.uid);
-        setLoadingGoals(false);
+        await fetchGoals(user.uid);
       } else {
         setUserId(null);
         setHabitGoals([]);
-        console.log("setHabitGoals after logout/navigation:", []);
         setMaterialGoals([]);
-        console.log("setMaterialGoals after logout/navigation:", []);
         setLoadingGoals(false);
       }
     });
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    console.log("User ID is:", userId); // Debug log to verify userId exists
-  }, [userId]);
+  const fetchGoals = async (uid) => {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data();
+      console.log("Fetched habit goals:", data.habitGoals);
+      console.log("Fetched material goals:", data.materialGoals);
+      setHabitGoals(data.habitGoals || []);
+      setMaterialGoals(data.materialGoals || []);
+    }
+    setLoadingGoals(false);
+  };
 
-  // Only call saveGoals after goals change, not on every render
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
     if (!userId) return;
     const ref = doc(db, "users", userId);
@@ -58,6 +50,7 @@ export default function GoalManagement() {
       habitGoals: newHabitGoals,
       materialGoals: newMaterialGoals
     });
+    console.log("Saved goals to Firestore");
   };
 
   const addHabitGoal = () => {
@@ -85,25 +78,17 @@ export default function GoalManagement() {
     saveGoals(habitGoals, updated);
   };
 
-  // Delete a habit goal
   const deleteHabitGoal = (id) => {
     const updated = habitGoals.filter((goal) => goal.id !== id);
     setHabitGoals(updated);
     saveGoals(updated, materialGoals);
   };
 
-  // Delete a material goal
   const deleteMaterialGoal = (id) => {
     const updated = materialGoals.filter((goal) => goal.id !== id);
     setMaterialGoals(updated);
     saveGoals(habitGoals, updated);
   };
-
-  // Persist goals to localStorage on change
-  useEffect(() => {
-    localStorage.setItem("habitGoals", JSON.stringify(habitGoals));
-    localStorage.setItem("materialGoals", JSON.stringify(materialGoals));
-  }, [habitGoals, materialGoals]);
 
   if (loadingGoals) return <p className="text-center text-gray-400 py-10">Loading goals...</p>;
 
