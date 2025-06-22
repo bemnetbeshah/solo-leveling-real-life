@@ -13,27 +13,47 @@ export default function GoalManagement() {
   const [userId, setUserId] = useState(null);
   const [habitGoalError, setHabitGoalError] = useState("");
   const [materialGoalError, setMaterialGoalError] = useState("");
-  const [goalsLoaded, setGoalsLoaded] = useState(false); // Only fetch goals from Firestore on first load, not on every auth change
+  const [loadingGoals, setLoadingGoals] = useState(true);
 
+  // Always fetch goals on every mount and on page re-enter
   useEffect(() => {
-    if (goalsLoaded) return;
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user && !goalsLoaded) {
-        setUserId(user.uid);
+      if (user) {
         const ref = doc(db, "users", user.uid);
         const snap = await getDoc(ref);
         if (snap.exists()) {
           const data = snap.data();
-          console.log("Loaded habit goals:", data.habitGoals);
-          console.log("Loaded material goals:", data.materialGoals);
           setHabitGoals(data.habitGoals || []);
           setMaterialGoals(data.materialGoals || []);
         }
-        setGoalsLoaded(true);
+        setUserId(user.uid);
+        setLoadingGoals(false);
+      } else {
+        setUserId(null);
+        setHabitGoals([]);
+        setMaterialGoals([]);
+        setLoadingGoals(false);
       }
     });
     return () => unsubscribe();
-  }, [goalsLoaded]);
+  }, []);
+
+  // Force refresh goals on page re-enter
+  useEffect(() => {
+    const fetchGoals = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          setHabitGoals(data.habitGoals || []);
+          setMaterialGoals(data.materialGoals || []);
+        }
+      }
+    };
+    fetchGoals();
+  }, []);
 
   useEffect(() => {
     console.log("User ID is:", userId); // Debug log to verify userId exists
@@ -87,6 +107,8 @@ export default function GoalManagement() {
     setMaterialGoals(updated);
     saveGoals(habitGoals, updated);
   };
+
+  if (loadingGoals) return <p className="text-center text-gray-400 py-10">Loading goals...</p>;
 
   return (
     <div className="p-6 text-white bg-gray-900 min-h-screen">
