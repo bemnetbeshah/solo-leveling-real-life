@@ -50,12 +50,6 @@ export default function GoalManagement() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (userId) {
-      saveGoals(habitGoals, materialGoals);
-    }
-  }, [habitGoals, materialGoals]);
-
   const fetchGoals = async (uid) => {
     const ref = doc(db, "users", uid);
     const snap = await getDoc(ref);
@@ -67,15 +61,6 @@ export default function GoalManagement() {
     setLoadingGoals(false);
   };
 
-  const saveGoals = async (newHabitGoals, newMaterialGoals) => {
-    if (!userId) return;
-    const ref = doc(db, "users", userId);
-    await setDoc(ref, {
-      habitGoals: newHabitGoals,
-      materialGoals: newMaterialGoals
-    }, { merge: true });
-  };
-
   const addHabitGoal = () => {
     if (!newHabitGoal.trim()) {
       setHabitGoalError("You didn't write anything");
@@ -85,6 +70,7 @@ export default function GoalManagement() {
     const updated = [...habitGoals, { id: Date.now().toString(), text: newHabitGoal, frequency: "daily", active: true }];
     setHabitGoals(updated);
     setNewHabitGoal("");
+    saveGoals(updated, materialGoals); // Save immediately after update
   };
 
   const addMaterialGoal = () => {
@@ -97,16 +83,28 @@ export default function GoalManagement() {
     setMaterialGoals(updated);
     setNewMaterialGoal("");
     setDeadline("");
+    saveGoals(habitGoals, updated); // Save immediately after update
   };
 
   const deleteHabitGoal = (id) => {
     const updated = habitGoals.filter((goal) => goal.id !== id);
     setHabitGoals(updated);
+    saveGoals(updated, materialGoals); // Save immediately after update
   };
 
   const deleteMaterialGoal = (id) => {
     const updated = materialGoals.filter((goal) => goal.id !== id);
     setMaterialGoals(updated);
+    saveGoals(habitGoals, updated); // Save immediately after update
+  };
+
+  const saveGoals = async (newHabitGoals, newMaterialGoals) => {
+    if (!userId) return;
+    const ref = doc(db, "users", userId);
+    await setDoc(ref, {
+      habitGoals: newHabitGoals,
+      materialGoals: newMaterialGoals
+    }, { merge: true });
   };
 
   if (loadingGoals) return <p className="text-center text-gray-400 py-10">Loading goals...</p>;
