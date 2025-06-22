@@ -15,25 +15,30 @@ export default function GoalManagement() {
   const [materialGoalError, setMaterialGoalError] = useState("");
   const [loadingGoals, setLoadingGoals] = useState(true);
 
+  const ensureUserDocInitialized = async (uid) => {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        habitGoals: [],
+        materialGoals: []
+      });
+    } else {
+      const data = snap.data();
+      const update = {};
+      if (!Array.isArray(data.habitGoals)) update.habitGoals = [];
+      if (!Array.isArray(data.materialGoals)) update.materialGoals = [];
+      if (Object.keys(update).length > 0) {
+        await setDoc(ref, update, { merge: true });
+      }
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
-        const ref = doc(db, "users", user.uid);
-        const snap = await getDoc(ref);
-        if (!snap.exists()) {
-          await setDoc(ref, {
-            habitGoals: [],
-            materialGoals: []
-          });
-        } else {
-          const data = snap.data();
-          // Ensure default values if not present
-          await setDoc(ref, {
-            habitGoals: data.habitGoals ?? [],
-            materialGoals: data.materialGoals ?? []
-          }, { merge: true });
-        }
+        await ensureUserDocInitialized(user.uid);
         await fetchGoals(user.uid);
       } else {
         setUserId(null);
