@@ -160,17 +160,10 @@ export default function GoalManagement() {
     <div className="min-h-screen bg-gray-900 text-white p-3 sm:p-4 md:p-6">
       {/* Back Navigation */}
       <div className="mb-3 sm:mb-4 flex justify-start">
-    <div className="min-h-screen bg-gray-900 text-white p-3 sm:p-4 md:p-6">
-      {/* Back Navigation */}
-      <div className="mb-3 sm:mb-4 flex justify-start">
         <Link
           to="/"
           className="text-blue-400 underline hover:text-blue-300 text-sm sm:text-base font-semibold flex items-center gap-1"
-          className="text-blue-400 underline hover:text-blue-300 text-sm sm:text-base font-semibold flex items-center gap-1"
         >
-          <span className="text-lg">←</span>
-          <span className="hidden sm:inline">Back to Main UI</span>
-          <span className="sm:hidden">Back</span>
           <span className="text-lg">←</span>
           <span className="hidden sm:inline">Back to Main UI</span>
           <span className="sm:hidden">Back</span>
@@ -180,15 +173,6 @@ export default function GoalManagement() {
       {/* Main Title */}
       <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Goal Management</h1>
 
-      {/* Main Title */}
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Goal Management</h1>
-
-      {/* Habit Goals Section */}
-      <section className="mb-6 sm:mb-8">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Habit Goals</h2>
-        
-        {/* Add Habit Goal Form */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
       {/* Habit Goals Section */}
       <section className="mb-6 sm:mb-8">
         <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Habit Goals</h2>
@@ -202,8 +186,6 @@ export default function GoalManagement() {
             placeholder="e.g. Study every day"
             className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
             onKeyPress={(e) => e.key === 'Enter' && addHabitGoal()}
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
-            onKeyPress={(e) => e.key === 'Enter' && addHabitGoal()}
           />
           <button 
             onClick={addHabitGoal} 
@@ -211,21 +193,7 @@ export default function GoalManagement() {
           >
             Add
           </button>
-          <button 
-            onClick={addHabitGoal} 
-            className="bg-blue-600 hover:bg-blue-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap"
-          >
-            Add
-          </button>
         </div>
-        
-        {/* Error Message */}
-        {habitGoalError && (
-          <div className="text-red-400 mb-2 text-xs sm:text-sm">{habitGoalError}</div>
-        )}
-        
-        {/* Habit Goals List */}
-        <ul className="space-y-2 sm:space-y-3">
         
         {/* Error Message */}
         {habitGoalError && (
@@ -272,22 +240,10 @@ export default function GoalManagement() {
             No habit goals yet. Add your first one above!
           </p>
         )}
-        
-        {/* Empty State */}
-        {habitGoals.length === 0 && (
-          <p className="text-gray-400 text-sm sm:text-base text-center py-4">
-            No habit goals yet. Add your first one above!
-          </p>
-        )}
       </section>
 
       {/* Material Goals Section */}
-      {/* Material Goals Section */}
       <section>
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Material Goals</h2>
-        
-        {/* Add Material Goal Form */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
         <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Material Goals</h2>
         
         {/* Add Material Goal Form */}
@@ -299,22 +255,13 @@ export default function GoalManagement() {
             placeholder="e.g. Get a 4.0 GPA"
             className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
             onKeyPress={(e) => e.key === 'Enter' && addMaterialGoal()}
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
-            onKeyPress={(e) => e.key === 'Enter' && addMaterialGoal()}
           />
           <input
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
             className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base min-w-[120px] sm:min-w-[140px]"
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base min-w-[120px] sm:min-w-[140px]"
           />
-          <button 
-            onClick={addMaterialGoal} 
-            className="bg-green-600 hover:bg-green-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap"
-          >
-            Add
-          </button>
           <button 
             onClick={addMaterialGoal} 
             className="bg-green-600 hover:bg-green-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap"
@@ -322,14 +269,6 @@ export default function GoalManagement() {
             Add
           </button>
         </div>
-        
-        {/* Error Message */}
-        {materialGoalError && (
-          <div className="text-red-400 mb-2 text-xs sm:text-sm">{materialGoalError}</div>
-        )}
-        
-        {/* Material Goals List */}
-        <ul className="space-y-2 sm:space-y-3">
         
         {/* Error Message */}
         {materialGoalError && (
@@ -374,13 +313,6 @@ export default function GoalManagement() {
             </li>
           ))}
         </ul>
-        
-        {/* Empty State */}
-        {materialGoals.length === 0 && (
-          <p className="text-gray-400 text-sm sm:text-base text-center py-4">
-            No material goals yet. Add your first one above!
-          </p>
-        )}
         
         {/* Empty State */}
         {materialGoals.length === 0 && (
