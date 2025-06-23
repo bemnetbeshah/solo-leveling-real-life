@@ -3,6 +3,7 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import { loadUserData, saveUserData } from "./firestoreHelpers";
 import { Link } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 // AttributeCircle component for circular attribute display
 function AttributeCircle({ icon, label, value, color }) {
@@ -252,6 +253,28 @@ function App() {
   // Render the main UI
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#374151',
+            color: '#fff',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10B981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#EF4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
       <div className="flex flex-col items-end mb-4">
         {userEmail && (
           <span className="text-xs text-gray-300 mb-1 px-2 py-1 bg-gray-800 rounded font-mono select-all">

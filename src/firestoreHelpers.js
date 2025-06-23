@@ -40,6 +40,68 @@ export async function updateUserData(uid, updates) {
   await updateDoc(userRef, updates);
 }
 
+// Add quests to user's quest list
+export async function addQuestToFirestore(quest, userId) {
+  try {
+    const userRef = doc(db, "users", userId);
+    
+    // Get current user data to ensure quests array exists
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      const currentQuests = userData.quests || [];
+      
+      // Add the new quest to the existing quests array
+      const updatedQuests = [...currentQuests, quest];
+      
+      // Update the quests field
+      await updateDoc(userRef, {
+        quests: updatedQuests
+      });
+      
+      console.log("Quest added successfully:", quest);
+      return true;
+    } else {
+      console.error("User document not found");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error adding quest to Firestore:", error);
+    return false;
+  }
+}
+
+// Add multiple quests at once
+export async function addMultipleQuestsToFirestore(quests, userId) {
+  try {
+    const userRef = doc(db, "users", userId);
+    
+    // Get current user data
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      const currentQuests = userData.quests || [];
+      
+      // Add all new quests to the existing quests array
+      const updatedQuests = [...currentQuests, ...quests];
+      
+      // Update the quests field
+      await updateDoc(userRef, {
+        quests: updatedQuests
+      });
+      
+      console.log(`${quests.length} quests added successfully`);
+      return true;
+    } else {
+      console.error("User document not found");
+      return false;
+    }
+  } catch (error) {
+    console.error("Error adding multiple quests to Firestore:", error);
+    return false;
+  }
+}
+
 // Load user data, or initialize it if it doesn't exist
 export async function loadUserData(uid) {
   const userRef = doc(db, "users", uid);
