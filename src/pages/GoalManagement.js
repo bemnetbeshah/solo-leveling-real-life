@@ -11,14 +11,14 @@ import { Sparkles, Loader2 } from "lucide-react";
 function getFallbackQuests(goalText, goalType = "habit") {
   const fallbackQuests = {
     habit: [
-      { text: `Set aside 30 minutes for ${goalText}`, xp: 20, stats: { discipline: 2 } },
-      { text: `Create a checklist for ${goalText}`, xp: 15, stats: { mindfulness: 1 } },
-      { text: `Track progress on ${goalText}`, xp: 25, stats: { discipline: 3 } }
+      { text: `Set aside 30 minutes for ${goalText}`, xp: 20, stats: { education: 2 } },
+      { text: `Create a checklist for ${goalText}`, xp: 15, stats: { mindset: 1 } },
+      { text: `Track progress on ${goalText}`, xp: 25, stats: { education: 3 } }
     ],
     material: [
-      { text: `Research best practices for ${goalText}`, xp: 30, stats: { discipline: 2 } },
-      { text: `Create a plan to achieve ${goalText}`, xp: 25, stats: { mindfulness: 2 } },
-      { text: `Set milestones for ${goalText}`, xp: 20, stats: { discipline: 1 } }
+      { text: `Research best practices for ${goalText}`, xp: 30, stats: { education: 2 } },
+      { text: `Create a plan to achieve ${goalText}`, xp: 25, stats: { mindset: 2 } },
+      { text: `Set milestones for ${goalText}`, xp: 20, stats: { education: 1 } }
     ]
   };
 

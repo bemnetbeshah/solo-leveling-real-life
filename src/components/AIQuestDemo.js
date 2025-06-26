@@ -60,22 +60,22 @@ export default function AIQuestDemo() {
 
   const getAttributeColor = (attribute) => {
     const colors = {
-      discipline: 'text-red-400',
+      education: 'text-red-400',
       charisma: 'text-yellow-400',
-      strength: 'text-blue-400',
-      spiritual: 'text-purple-400',
-      mindfulness: 'text-green-400'
+      healthAndWellness: 'text-blue-400',
+      spirituality: 'text-purple-400',
+      mindset: 'text-green-400'
     };
     return colors[attribute] || 'text-gray-400';
   };
 
   const getAttributeIcon = (attribute) => {
     const icons = {
-      discipline: '🔥',
+      education: '📚',
       charisma: '💬',
-      strength: '💪',
-      spiritual: '🧘',
-      mindfulness: '🧠'
+      healthAndWellness: '🏃‍♂️',
+      spirituality: '🧘',
+      mindset: '🧠'
     };
     return icons[attribute] || '📊';
   };
