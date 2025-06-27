@@ -4,11 +4,13 @@ import { auth } from "./firebase";
 import { loadUserData, saveUserData } from "./firestoreHelpers";
 import { Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { Heart, Brain, MessageCircle, Dumbbell, Flame, BookOpen } from "lucide-react";
+import { Heart, Brain, MessageCircle, Dumbbell, Flame, BookOpen, Settings } from "lucide-react";
+import { useTheme } from "./hooks/useTheme";
 
 // Enhanced AttributeCircle component with glassmorphic design
 function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+  const { isDarkMode, themeColor, themeColors } = useTheme();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -60,10 +62,10 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
     switch (attrName) {
       case 'mindset':
         return {
-          border: 'border-green-500/20',
-          hoverBorder: 'hover:border-green-500/50',
+          border: isDarkMode ? 'border-green-500/20' : 'border-green-500/30',
+          hoverBorder: isDarkMode ? 'hover:border-green-500/50' : 'hover:border-green-500/60',
           hoverShadow: 'hover:shadow-green-500/30',
-          hoverBg: 'hover:from-green-500/10',
+          hoverBg: isDarkMode ? 'hover:from-green-500/10' : 'hover:from-green-500/20',
           textColor: 'text-green-500',
           hoverTextColor: 'group-hover:text-green-400',
           shimmerColor: 'via-green-400/20',
@@ -71,10 +73,10 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
         };
       case 'healthWellness':
         return {
-          border: 'border-blue-500/20',
-          hoverBorder: 'hover:border-blue-500/50',
+          border: isDarkMode ? 'border-blue-500/20' : 'border-blue-500/30',
+          hoverBorder: isDarkMode ? 'hover:border-blue-500/50' : 'hover:border-blue-500/60',
           hoverShadow: 'hover:shadow-blue-500/30',
-          hoverBg: 'hover:from-blue-500/10',
+          hoverBg: isDarkMode ? 'hover:from-blue-500/10' : 'hover:from-blue-500/20',
           textColor: 'text-blue-500',
           hoverTextColor: 'group-hover:text-blue-400',
           shimmerColor: 'via-blue-400/20',
@@ -82,10 +84,10 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
         };
       case 'charisma':
         return {
-          border: 'border-yellow-500/20',
-          hoverBorder: 'hover:border-yellow-500/50',
+          border: isDarkMode ? 'border-yellow-500/20' : 'border-yellow-500/30',
+          hoverBorder: isDarkMode ? 'hover:border-yellow-500/50' : 'hover:border-yellow-500/60',
           hoverShadow: 'hover:shadow-yellow-500/30',
-          hoverBg: 'hover:from-yellow-500/10',
+          hoverBg: isDarkMode ? 'hover:from-yellow-500/10' : 'hover:from-yellow-500/20',
           textColor: 'text-yellow-500',
           hoverTextColor: 'group-hover:text-yellow-400',
           shimmerColor: 'via-yellow-400/20',
@@ -93,10 +95,10 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
         };
       case 'education':
         return {
-          border: 'border-red-500/20',
-          hoverBorder: 'hover:border-red-500/50',
+          border: isDarkMode ? 'border-red-500/20' : 'border-red-500/30',
+          hoverBorder: isDarkMode ? 'hover:border-red-500/50' : 'hover:border-red-500/60',
           hoverShadow: 'hover:shadow-red-500/30',
-          hoverBg: 'hover:from-red-500/10',
+          hoverBg: isDarkMode ? 'hover:from-red-500/10' : 'hover:from-red-500/20',
           textColor: 'text-red-500',
           hoverTextColor: 'group-hover:text-red-400',
           shimmerColor: 'via-red-400/20',
@@ -104,10 +106,10 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
         };
       case 'spirituality':
         return {
-          border: 'border-purple-500/20',
-          hoverBorder: 'hover:border-purple-500/50',
+          border: isDarkMode ? 'border-purple-500/20' : 'border-purple-500/30',
+          hoverBorder: isDarkMode ? 'hover:border-purple-500/50' : 'hover:border-purple-500/60',
           hoverShadow: 'hover:shadow-purple-500/30',
-          hoverBg: 'hover:from-purple-500/10',
+          hoverBg: isDarkMode ? 'hover:from-purple-500/10' : 'hover:from-purple-500/20',
           textColor: 'text-purple-500',
           hoverTextColor: 'group-hover:text-purple-400',
           shimmerColor: 'via-purple-400/20',
@@ -115,14 +117,14 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
         };
       default:
         return {
-          border: 'border-white/10',
-          hoverBorder: 'hover:border-white/30',
-          hoverShadow: 'hover:shadow-white/20',
-          hoverBg: 'hover:from-white/10',
-          textColor: 'text-white',
-          hoverTextColor: 'group-hover:text-white/90',
-          shimmerColor: 'via-white/10',
-          progressColor: '#ffffff'
+          border: isDarkMode ? 'border-white/10' : 'border-black/10',
+          hoverBorder: isDarkMode ? 'hover:border-white/30' : 'hover:border-black/30',
+          hoverShadow: isDarkMode ? 'hover:shadow-white/20' : 'hover:shadow-black/20',
+          hoverBg: isDarkMode ? 'hover:from-white/10' : 'hover:from-black/10',
+          textColor: isDarkMode ? 'text-white' : 'text-black',
+          hoverTextColor: isDarkMode ? 'group-hover:text-white/90' : 'group-hover:text-black/90',
+          shimmerColor: isDarkMode ? 'via-white/10' : 'via-black/10',
+          progressColor: isDarkMode ? '#ffffff' : '#000000'
         };
     }
   };
@@ -141,7 +143,7 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
         >
           {/* Background circle */}
           <circle
-            stroke="rgba(255, 255, 255, 0.1)"
+            stroke={isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}
             fill="transparent"
             strokeWidth={stroke}
             r={normalizedRadius}
@@ -166,7 +168,7 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
         </svg>
         {/* Button, centered absolutely */}
         <button
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-5 rounded-full backdrop-blur-lg border ${colorVariants.border} bg-gradient-to-tr from-black/60 to-black/40 shadow-lg hover:shadow-2xl ${colorVariants.hoverShadow} hover:scale-110 hover:rotate-2 active:scale-95 active:rotate-0 transition-all duration-300 ease-out cursor-pointer ${colorVariants.hoverBorder} hover:bg-gradient-to-tr ${colorVariants.hoverBg} hover:to-black/40 group overflow-hidden flex items-center justify-center`}
+          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-5 rounded-full backdrop-blur-lg border ${colorVariants.border} ${isDarkMode ? 'bg-gradient-to-tr from-black/60 to-black/40' : 'bg-gradient-to-tr from-white/60 to-white/40'} shadow-lg hover:shadow-2xl ${colorVariants.hoverShadow} hover:scale-110 hover:rotate-2 active:scale-95 active:rotate-0 transition-all duration-300 ease-out cursor-pointer ${colorVariants.hoverBorder} hover:bg-gradient-to-tr ${colorVariants.hoverBg} ${isDarkMode ? 'hover:to-black/40' : 'hover:to-white/40'} group overflow-hidden flex items-center justify-center`}
           style={{ width: 56, height: 56 }}
         >
           <div
@@ -177,7 +179,7 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
       </div>
       <div className="mt-3 text-center">
         <div className={`text-lg font-bold ${colorVariants.textColor}`}>{value || 0}</div>
-        <div className="text-xs text-gray-400 font-medium break-words max-w-[80px]">{getDisplayName(label)}</div>
+        <div className={`text-xs font-medium break-words max-w-[80px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{getDisplayName(label)}</div>
       </div>
     </div>
   );
@@ -185,6 +187,8 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
 
 // Quest Card component with glassmorphic design
 function QuestCard({ quest, isCompleted, onToggle, stats }) {
+  const { isDarkMode } = useTheme();
+
   const getStatIcon = (statName) => {
     const iconSize = 12;
     const colors = {
@@ -238,10 +242,10 @@ function QuestCard({ quest, isCompleted, onToggle, stats }) {
                 onChange={() => onToggle(quest.id, quest.xp)}
               />
               <div
-                className="w-8 h-8 rounded-lg bg-white border-2 border-purple-500 transition-all duration-300 ease-in-out peer-checked:bg-gradient-to-br from-purple-500 to-pink-500 peer-checked:border-0 peer-checked:rotate-12 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-5 after:h-5 after:opacity-0 after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=')] after:bg-contain after:bg-no-repeat peer-checked:after:opacity-100 after:transition-opacity after:duration-300 hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]"
+                className="w-8 h-8 rounded-lg bg-white border-2 border-theme-accent transition-all duration-300 ease-in-out peer-checked:bg-gradient-theme peer-checked:border-0 peer-checked:rotate-12 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-5 after:h-5 after:opacity-0 after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIyMCA2IDkgMTcgNCAxMiI+PC9wb2x5bGluZT48L3N2Zz4=')] after:bg-contain after:bg-no-repeat peer-checked:after:opacity-100 after:transition-opacity after:duration-300 shadow-theme-glow-hover"
               ></div>
             </label>
-            <span className={`font-medium ${isCompleted ? 'line-through text-gray-400' : 'text-white'}`}>
+            <span className={`font-medium ${isCompleted ? `line-through ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}` : 'text-theme-primary'}`}>
               {quest.text}
             </span>
           </div>
@@ -252,7 +256,7 @@ function QuestCard({ quest, isCompleted, onToggle, stats }) {
               {Object.entries(quest.stats).map(([stat, value]) => (
                 <div key={stat} className="flex items-center gap-1">
                   {getStatIcon(stat)}
-                  <span className="text-xs text-gray-400">{getDisplayName(stat)}</span>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{getDisplayName(stat)}</span>
                 </div>
               ))}
             </div>
@@ -260,7 +264,7 @@ function QuestCard({ quest, isCompleted, onToggle, stats }) {
         </div>
         
         <div className="flex flex-col items-end gap-1">
-          <span className="text-sm font-bold text-neon-purple text-glow">{quest.xp} XP</span>
+          <span className="text-sm font-bold text-theme-accent text-glow">{quest.xp} XP</span>
           {isCompleted && (
             <span className="text-xs text-green-400">✓ Completed</span>
           )}
@@ -272,6 +276,7 @@ function QuestCard({ quest, isCompleted, onToggle, stats }) {
 
 // Main App component
 function App() {
+  const { isDarkMode } = useTheme();
   const load = (key, defaultValue) =>
     JSON.parse(localStorage.getItem(key)) ?? defaultValue;
 
@@ -439,42 +444,42 @@ function App() {
 
   if (loadingUserData) {
     return (
-      <div className="min-h-screen bg-base-bg flex items-center justify-center">
+      <div className={`min-h-screen bg-theme-base flex items-center justify-center`}>
         <div className="glass-panel p-8 flex flex-col items-center">
-          <div className="w-8 h-8 border-2 border-neon-purple border-t-transparent rounded-full animate-spin mb-4"></div>
-          <span className="text-white font-medium">Loading your journey...</span>
+          <div className="w-8 h-8 border-2 border-theme-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+          <span className="text-theme-primary font-medium">Loading your journey...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-base-bg text-white p-4 sm:p-6 relative overflow-hidden">
+    <div className={`min-h-screen bg-theme-base text-theme-primary p-4 sm:p-6 relative overflow-hidden`}>
       {/* Background gradient effects */}
-      <div className="fixed inset-0 bg-gradient-radial from-neon-purple/5 via-transparent to-transparent pointer-events-none"></div>
-      <div className="fixed top-0 right-0 w-96 h-96 bg-neon-purple/3 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="fixed bottom-0 left-0 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl pointer-events-none"></div>
+      <div className={`fixed inset-0 ${isDarkMode ? 'bg-gradient-theme-radial-opacity-2' : 'bg-gradient-theme-radial-opacity-1'} pointer-events-none`}></div>
+      <div className={`fixed top-0 right-0 w-96 h-96 bg-theme-accent opacity-2 rounded-full blur-3xl pointer-events-none`}></div>
+      <div className={`fixed bottom-0 left-0 w-96 h-96 ${isDarkMode ? 'bg-blue-500/2' : 'bg-blue-500/1'} rounded-full blur-3xl pointer-events-none`}></div>
       
       <Toaster 
         position="top-right"
         toastOptions={{
           duration: 4000,
           style: {
-            background: 'rgba(0, 0, 0, 0.8)',
-            color: '#fff',
+            background: isDarkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+            color: isDarkMode ? '#fff' : '#1a1a1a',
             backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(142, 68, 173, 0.3)',
+            border: `1px solid var(--theme-border)`,
           },
           success: {
             iconTheme: {
-              primary: '#8E44AD',
-              secondary: '#fff',
+              primary: 'var(--theme-primary)',
+              secondary: isDarkMode ? '#fff' : '#1a1a1a',
             },
           },
           error: {
             iconTheme: {
               primary: '#EF4444',
-              secondary: '#fff',
+              secondary: isDarkMode ? '#fff' : '#1a1a1a',
             },
           },
         }}
@@ -482,14 +487,23 @@ function App() {
 
       {/* Header */}
       <div className="relative z-10">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex flex-col">
-            <h1 className="text-2xl sm:text-3xl font-bold text-glow">Solo Leveling</h1>
-            <p className="text-sm text-gray-400">Real Life RPG</p>
+        <div className="flex justify-between items-start mb-6">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/settings"
+              className="p-3 glass-card rounded-lg hover:neon-glow transition-all duration-300 flex items-center gap-2"
+            >
+              <Settings size={20} className="text-theme-accent" />
+              <span className="text-sm font-medium">Settings</span>
+            </Link>
+            <div className="flex flex-col">
+              <h1 className="text-2xl sm:text-3xl font-bold text-glow">Solo Leveling</h1>
+              <p className="text-theme-secondary">Real Life RPG</p>
+            </div>
           </div>
           <div className="flex flex-col items-end gap-2">
             {userEmail && (
-              <span className="text-xs text-gray-300 px-3 py-1 glass-card rounded-full font-mono">
+              <span className={`text-xs px-3 py-1 glass-card rounded-full font-mono ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 {userEmail}
               </span>
             )}
@@ -508,7 +522,7 @@ function App() {
             to="/goals"
             className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-lg font-medium hover:neon-glow transition-all duration-300"
           >
-            <span className="text-neon-purple">⚡</span>
+            <span className="text-theme-accent">⚡</span>
             Manage Goals
           </Link>
         </div>
@@ -518,31 +532,31 @@ function App() {
       <div className="glass-panel p-6 mb-6 relative z-10">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-neon-purple to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-12 h-12 bg-gradient-theme rounded-full flex items-center justify-center text-white font-bold text-lg">
               {level}
             </div>
             <div>
               <h2 className="text-xl font-bold">Level {level}</h2>
-              <p className="text-sm text-gray-400">Adventure continues...</p>
+              <p className="text-theme-secondary">Adventure continues...</p>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-neon-purple text-glow">{xp}</div>
-            <div className="text-sm text-gray-400">Experience Points</div>
+            <div className="text-2xl font-bold text-theme-accent text-glow">{xp}</div>
+            <div className="text-theme-secondary">Experience Points</div>
           </div>
         </div>
         
         {/* XP Progress Bar */}
         <div className="relative">
-          <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+          <div className={`w-full h-3 ${isDarkMode ? 'bg-white/10' : 'bg-black/10'} rounded-full overflow-hidden`}>
             <div
-              className="h-full bg-gradient-to-r from-neon-purple to-purple-600 rounded-full transition-all duration-1000 ease-out"
+              className="h-full bg-gradient-theme rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${(xp / 100) * 100}%` }}
             >
               <div className="h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse-slow"></div>
             </div>
           </div>
-          <div className="absolute inset-0 rounded-full shadow-[0_0_20px_rgba(142,68,173,0.3)]"></div>
+          <div className="absolute inset-0 rounded-full shadow-theme-glow"></div>
         </div>
       </div>
 
@@ -584,18 +598,18 @@ function App() {
               placeholder="Quest name (e.g., Meditate 10 mins)"
               value={newQuestText}
               onChange={(e) => setNewQuestText(e.target.value)}
-              className="w-full p-3 glass-card rounded-lg text-white placeholder-gray-400 focus:outline-none focus:neon-border transition-all duration-300"
+              className="w-full p-3 glass-card rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:neon-border transition-all duration-300"
             />
             <input
               type="number"
               placeholder="XP amount"
               value={newQuestXP}
               onChange={(e) => setNewQuestXP(e.target.value)}
-              className="w-full p-3 glass-card rounded-lg text-white placeholder-gray-400 focus:outline-none focus:neon-border transition-all duration-300"
+              className="w-full p-3 glass-card rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:neon-border transition-all duration-300"
             />
             <button
               onClick={handleAddQuest}
-              className="w-full py-3 bg-gradient-to-r from-neon-purple to-purple-600 hover:from-purple-600 hover:to-neon-purple rounded-lg font-bold text-white transition-all duration-300 neon-glow"
+              className="w-full py-3 bg-gradient-theme hover:shadow-theme-glow-hover rounded-lg font-bold text-white transition-all duration-300 neon-glow"
             >
               + Create Quest
             </button>
