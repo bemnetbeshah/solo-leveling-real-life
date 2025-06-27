@@ -151,18 +151,26 @@ export default function GoalManagement() {
   };
 
   if (loadingGoals) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <p className="text-gray-400 text-sm sm:text-base">Loading goals...</p>
+    <div className="min-h-screen bg-base-bg flex items-center justify-center">
+      <div className="glass-panel p-8 flex flex-col items-center">
+        <div className="w-8 h-8 border-2 border-neon-purple border-t-transparent rounded-full animate-spin mb-4"></div>
+        <span className="text-white font-medium">Loading your goals...</span>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-3 sm:p-4 md:p-6">
+    <div className="min-h-screen bg-base-bg text-white p-3 sm:p-4 md:p-6 relative overflow-hidden">
+      {/* Background gradient effects */}
+      <div className="fixed inset-0 bg-gradient-radial from-neon-purple/5 via-transparent to-transparent pointer-events-none"></div>
+      <div className="fixed top-0 right-0 w-96 h-96 bg-neon-purple/3 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="fixed bottom-0 left-0 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl pointer-events-none"></div>
+
       {/* Back Navigation */}
       <div className="mb-3 sm:mb-4 flex justify-start">
         <Link
           to="/"
-          className="text-blue-400 underline hover:text-blue-300 text-sm sm:text-base font-semibold flex items-center gap-1"
+          className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-lg font-medium hover:neon-glow transition-all duration-300"
         >
           <span className="text-lg">←</span>
           <span className="hidden sm:inline">Back to Main UI</span>
@@ -171,155 +179,121 @@ export default function GoalManagement() {
       </div>
 
       {/* Main Title */}
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Goal Management</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-glow mb-4 sm:mb-6">Goal Management</h1>
 
       {/* Habit Goals Section */}
-      <section className="mb-6 sm:mb-8">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Habit Goals</h2>
-        
-        {/* Add Habit Goal Form */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
-          <input
-            type="text"
-            value={newHabitGoal}
-            onChange={(e) => setNewHabitGoal(e.target.value)}
-            placeholder="e.g. Study every day"
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
-            onKeyPress={(e) => e.key === 'Enter' && addHabitGoal()}
-          />
-          <button 
-            onClick={addHabitGoal} 
-            className="bg-blue-600 hover:bg-blue-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap"
-          >
-            Add
-          </button>
-        </div>
-        
-        {/* Error Message */}
-        {habitGoalError && (
-          <div className="text-red-400 mb-2 text-xs sm:text-sm">{habitGoalError}</div>
-        )}
-        
-        {/* Habit Goals List */}
-        <ul className="space-y-2 sm:space-y-3">
-          {habitGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded">
-              <div className="flex justify-between items-start sm:items-center">
-                <span className="text-sm sm:text-base pr-2 break-words flex-1">{goal.text}</span>
-                <div className="flex gap-2 ml-2">
+      <section className="mb-8">
+        <div className="glass-panel p-6 mb-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-neon-purple text-glow flex items-center gap-2">
+            <Sparkles className="text-neon-purple" size={22} /> Habit Goals
+          </h2>
+          {/* Add Habit Goal Form */}
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
+            <input
+              type="text"
+              value={newHabitGoal}
+              onChange={(e) => setNewHabitGoal(e.target.value)}
+              placeholder="e.g. Study every day"
+              className="glass-card p-3 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:neon-border transition-all duration-300 w-full hover:scale-[1.01]"
+              onKeyPress={(e) => e.key === 'Enter' && addHabitGoal()}
+            />
+            <button 
+              onClick={addHabitGoal} 
+              className="bg-gradient-to-r from-neon-purple to-purple-600 hover:from-purple-600 hover:to-neon-purple rounded-lg font-bold text-white px-4 py-3 transition-all duration-300 neon-glow hover:scale-[1.02]"
+            >
+              Add
+            </button>
+          </div>
+          {/* Error Message */}
+          {habitGoalError && (
+            <div className="text-red-400 mb-2 text-xs sm:text-sm">{habitGoalError}</div>
+          )}
+          {/* Habit Goals List */}
+          <ul className="space-y-3">
+            {habitGoals.map((goal) => (
+              <li key={goal.id} className="glass-card p-4 flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]">
+                <span className="font-medium text-white">{goal.text}</span>
+                <div className="flex gap-2 items-center">
                   <button
                     onClick={() => generateQuestsFromGoal(goal, "habit")}
+                    className="px-3 py-1 bg-neon-purple/20 hover:bg-neon-purple/40 text-neon-purple rounded-lg font-semibold transition-all duration-300 neon-glow flex items-center gap-1"
                     disabled={generatingQuests[goal.id]}
-                    className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 flex-shrink-0"
-                    title="Generate AI quests for this goal"
                   >
-                    {generatingQuests[goal.id] ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Sparkles size={14} />
-                    )}
-                    <span className="hidden sm:inline">Generate Quests</span>
-                    <span className="sm:hidden">AI</span>
+                    {generatingQuests[goal.id] ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                    <span>Quests</span>
                   </button>
                   <button
                     onClick={() => deleteHabitGoal(goal.id)}
-                    className="text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
-                    title="Delete Habit Goal"
+                    className="px-2 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded-lg font-semibold transition-all duration-300 hover:shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                   >
-                    ×
+                    Delete
                   </button>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        
-        {/* Empty State */}
-        {habitGoals.length === 0 && (
-          <p className="text-gray-400 text-sm sm:text-base text-center py-4">
-            No habit goals yet. Add your first one above!
-          </p>
-        )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       {/* Material Goals Section */}
-      <section>
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Material Goals</h2>
-        
-        {/* Add Material Goal Form */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
-          <input
-            type="text"
-            value={newMaterialGoal}
-            onChange={(e) => setNewMaterialGoal(e.target.value)}
-            placeholder="e.g. Get a 4.0 GPA"
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
-            onKeyPress={(e) => e.key === 'Enter' && addMaterialGoal()}
-          />
-          <input
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base min-w-[120px] sm:min-w-[140px]"
-          />
-          <button 
-            onClick={addMaterialGoal} 
-            className="bg-green-600 hover:bg-green-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap"
-          >
-            Add
-          </button>
-        </div>
-        
-        {/* Error Message */}
-        {materialGoalError && (
-          <div className="text-red-400 mb-2 text-xs sm:text-sm">{materialGoalError}</div>
-        )}
-        
-        {/* Material Goals List */}
-        <ul className="space-y-2 sm:space-y-3">
-          {materialGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded">
-              <div className="flex justify-between items-start sm:items-center">
-                <div className="flex-1 pr-2">
-                  <span className="text-sm sm:text-base break-words block">{goal.text}</span>
-                  <span className="text-xs sm:text-sm text-gray-400 block mt-1">
-                    (by {goal.deadline})
-                  </span>
-                </div>
-                <div className="flex gap-2 ml-2">
+      <section className="mb-8">
+        <div className="glass-panel p-6 mb-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-blue-400 flex items-center gap-2">
+            <Sparkles className="text-blue-400" size={22} /> Material Goals
+          </h2>
+          {/* Add Material Goal Form */}
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
+            <input
+              type="text"
+              value={newMaterialGoal}
+              onChange={(e) => setNewMaterialGoal(e.target.value)}
+              placeholder="e.g. Buy a new laptop"
+              className="glass-card p-3 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:neon-border transition-all duration-300 w-full hover:scale-[1.01]"
+              onKeyPress={(e) => e.key === 'Enter' && addMaterialGoal()}
+            />
+            <input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              className="glass-card p-3 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:neon-border transition-all duration-300 w-full sm:w-auto hover:scale-[1.01]"
+            />
+            <button 
+              onClick={addMaterialGoal} 
+              className="bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-600 hover:to-blue-400 rounded-lg font-bold text-white px-4 py-3 transition-all duration-300 neon-glow hover:scale-[1.02]"
+            >
+              Add
+            </button>
+          </div>
+          {/* Error Message */}
+          {materialGoalError && (
+            <div className="text-red-400 mb-2 text-xs sm:text-sm">{materialGoalError}</div>
+          )}
+          {/* Material Goals List */}
+          <ul className="space-y-3">
+            {materialGoals.map((goal) => (
+              <li key={goal.id} className="glass-card p-4 flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]">
+                <span className="font-medium text-white">{goal.text}</span>
+                <div className="flex gap-2 items-center">
+                  <span className="text-xs text-gray-400">{goal.deadline && `Due: ${goal.deadline}`}</span>
                   <button
                     onClick={() => generateQuestsFromGoal(goal, "material")}
+                    className="px-3 py-1 bg-blue-400/20 hover:bg-blue-400/40 text-blue-400 rounded-lg font-semibold transition-all duration-300 hover:shadow-[0_0_10px_rgba(96,165,250,0.5)] flex items-center gap-1"
                     disabled={generatingQuests[goal.id]}
-                    className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 flex-shrink-0"
-                    title="Generate AI quests for this goal"
                   >
-                    {generatingQuests[goal.id] ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Sparkles size={14} />
-                    )}
-                    <span className="hidden sm:inline">Generate Quests</span>
-                    <span className="sm:hidden">AI</span>
+                    {generatingQuests[goal.id] ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                    <span>Quests</span>
                   </button>
                   <button
                     onClick={() => deleteMaterialGoal(goal.id)}
-                    className="text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
-                    title="Delete Material Goal"
+                    className="px-2 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded-lg font-semibold transition-all duration-300 hover:shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                   >
-                    ×
+                    Delete
                   </button>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        
-        {/* Empty State */}
-        {materialGoals.length === 0 && (
-          <p className="text-gray-400 text-sm sm:text-base text-center py-4">
-            No material goals yet. Add your first one above!
-          </p>
-        )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
     </div>
   );
