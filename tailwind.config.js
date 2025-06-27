@@ -1,11 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         'base-bg': '#010101',
-        'neon-purple': '#8E44AD',
         'glass': 'rgba(255, 255, 255, 0.1)',
         'glass-dark': 'rgba(0, 0, 0, 0.2)',
       },
@@ -19,8 +19,8 @@ module.exports = {
       },
       keyframes: {
         glow: {
-          '0%': { boxShadow: '0 0 5px #8E44AD, 0 0 10px #8E44AD, 0 0 15px #8E44AD' },
-          '100%': { boxShadow: '0 0 10px #8E44AD, 0 0 20px #8E44AD, 0 0 30px #8E44AD' },
+          '0%': { boxShadow: '0 0 5px var(--theme-primary), 0 0 10px var(--theme-primary), 0 0 15px var(--theme-primary)' },
+          '100%': { boxShadow: '0 0 10px var(--theme-primary), 0 0 20px var(--theme-primary), 0 0 30px var(--theme-primary)' },
         },
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
