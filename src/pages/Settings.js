@@ -25,7 +25,7 @@ function ThemeColorGrid({ selectedColor, onColorSelect }) {
   }));
 
   return (
-    <div className="grid grid-cols-3 gap-x-4 gap-y-2 justify-items-center items-center w-fit">
+    <div className="flex gap-4 justify-center items-center w-fit">
       {themeColorArray.map((color) => (
         <label
           key={color.name}
@@ -119,8 +119,8 @@ function Settings() {
   return (
     <div className="min-h-screen bg-theme-base text-theme-primary p-4 sm:p-6 relative overflow-hidden">
       <div className={`fixed inset-0 ${isDarkMode ? 'bg-gradient-theme-radial-opacity-05' : 'bg-gradient-theme-radial-opacity-1'} pointer-events-none`}></div>
-      <div className={`fixed top-0 right-0 w-96 h-96 bg-theme-accent opacity-2 rounded-full blur-3xl pointer-events-none`}></div>
-      <div className={`fixed bottom-0 left-0 w-96 h-96 ${isDarkMode ? 'bg-blue-500/2' : 'bg-blue-500/1'} rounded-full blur-3xl pointer-events-none`}></div>
+      <div className={`fixed top-0 right-0 w-96 h-96 ${isDarkMode ? 'bg-theme-accent opacity-20' : 'bg-theme-accent opacity-10'} rounded-full blur-3xl pointer-events-none`}></div>
+      <div className={`fixed bottom-0 left-0 w-96 h-96 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-500/1'} rounded-full blur-3xl pointer-events-none`}></div>
       
       <Toaster 
         position="top-right"
@@ -163,7 +163,7 @@ function Settings() {
       </div>
 
       <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-6 hover:neon-glow transition-all duration-300">
           <div className="flex items-center gap-3 mb-4">
             <User className="text-theme-accent" size={20} />
             <h2 className="text-xl font-bold">Appearance</h2>
@@ -205,9 +205,9 @@ function Settings() {
               
               {/* Color Grid Dropdown */}
               {showColorGrid && (
-                <div className="mt-3 flex justify-end">
-                  <div className="glass-panel p-3 backdrop-blur-lg border border-white/10 shadow-2xl rounded-lg flex flex-col items-center">
-                    <div className="mb-2 text-sm font-medium text-theme-primary">Choose Theme Color:</div>
+                <div className="mt-3 pt-3 border-t border-theme-border/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-theme-secondary">Choose Theme Color:</span>
                     <ThemeColorGrid 
                       selectedColor={themeColor}
                       onColorSelect={(color) => handleSettingChange('uiThemeColor', color)}
@@ -219,7 +219,7 @@ function Settings() {
           </div>
         </div>
 
-        <div className="glass-panel p-6 border border-red-500/20">
+        <div className="glass-panel p-6 border border-red-500/20 hover:neon-glow transition-all duration-300">
           <div className="flex items-center gap-3 mb-4">
             <Trash2 className="text-red-500" size={20} />
             <h2 className="text-xl font-bold text-red-400">Danger Zone</h2>
