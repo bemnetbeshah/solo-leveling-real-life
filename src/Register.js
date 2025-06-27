@@ -35,7 +35,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-theme-base text-theme-primary p-4 sm:p-6 relative overflow-hidden">
       {/* Background gradient effects */}
-      <div className={`fixed inset-0 ${isDarkMode ? 'bg-gradient-theme-radial-opacity-2' : 'bg-gradient-theme-radial-opacity-1'} pointer-events-none`}></div>
+      <div className={`fixed inset-0 ${isDarkMode ? 'bg-gradient-theme-radial-opacity-05' : 'bg-gradient-theme-radial-opacity-1'} pointer-events-none`}></div>
       <div className={`fixed top-0 right-0 w-96 h-96 bg-theme-accent opacity-2 rounded-full blur-3xl pointer-events-none`}></div>
       <div className={`fixed bottom-0 left-0 w-96 h-96 ${isDarkMode ? 'bg-blue-500/2' : 'bg-blue-500/1'} rounded-full blur-3xl pointer-events-none`}></div>
       

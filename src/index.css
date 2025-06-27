@@ -189,4 +189,15 @@
     background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
     opacity: 0.3;
   }
+
+  /* Even dimmer background gradients for dark mode */
+  .bg-gradient-theme-radial-opacity-05 {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+    opacity: 0.05;
+  }
+
+  .bg-gradient-theme-radial-opacity-075 {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+    opacity: 0.075;
+  }
 }
