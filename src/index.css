@@ -1,3 +1,203 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-weight: 500;
+    overflow-x: hidden;
+  }
+
+  /* Dark mode styles */
+  .dark body {
+    background: #010101;
+    color: white;
+  }
+
+  /* Light mode styles */
+  .light body {
+    background: #ffffff;
+    color: #1a1a1a;
+  }
+  
+  /* Custom scrollbar - Dark mode */
+  .dark ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .dark ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--theme-primary);
+    border-radius: 3px;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-secondary);
+  }
+
+  /* Custom scrollbar - Light mode */
+  .light ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .light ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+  
+  .light ::-webkit-scrollbar-thumb {
+    background: var(--theme-primary);
+    border-radius: 3px;
+  }
+  
+  .light ::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-secondary);
+  }
+}
+
+@layer components {
+  /* Dark mode glass components */
+  .dark .glass-panel {
+    @apply bg-glass backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl;
+  }
+  
+  .dark .glass-card {
+    @apply bg-glass-dark backdrop-blur-sm border border-white/5 rounded-xl shadow-lg;
+  }
+
+  /* Light mode glass components */
+  .light .glass-panel {
+    @apply bg-white/80 backdrop-blur-md border border-black/10 rounded-2xl shadow-2xl;
+  }
+  
+  .light .glass-card {
+    @apply bg-white/60 backdrop-blur-sm border border-black/5 rounded-xl shadow-lg;
+  }
+  
+  .neon-glow {
+    box-shadow: 0 0 10px var(--theme-glow);
+    transition: all 0.3s ease;
+  }
+  
+  .neon-glow:hover {
+    box-shadow: 0 0 20px var(--theme-glow-hover);
+  }
+  
+  .neon-border {
+    border-color: var(--theme-border);
+    box-shadow: 0 0 10px var(--theme-glow);
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 10px var(--theme-glow);
+  }
+
+  /* Theme-aware text colors */
+  .dark .text-theme-primary {
+    @apply text-white;
+  }
+
+  .light .text-theme-primary {
+    @apply text-gray-900;
+  }
+
+  .dark .text-theme-secondary {
+    @apply text-gray-400;
+  }
+
+  .light .text-theme-secondary {
+    @apply text-gray-600;
+  }
+
+  .dark .text-theme-muted {
+    @apply text-gray-500;
+  }
+
+  .light .text-theme-muted {
+    @apply text-gray-500;
+  }
+
+  /* Theme-aware background colors */
+  .dark .bg-theme-base {
+    @apply bg-base-bg;
+  }
+
+  .light .bg-theme-base {
+    @apply bg-white;
+  }
+
+  /* Theme-aware input styles */
+  .dark input, .dark textarea, .dark select {
+    @apply bg-glass-dark border border-white/10 text-white placeholder-gray-400;
+  }
+
+  .light input, .light textarea, .light select {
+    @apply bg-white/80 border border-black/10 text-gray-900 placeholder-gray-500;
+  }
+
+  /* Dynamic theme color classes */
+  .text-theme-accent {
+    color: var(--theme-primary);
+  }
+
+  .bg-theme-accent {
+    background-color: var(--theme-primary);
+  }
+
+  .border-theme-accent {
+    border-color: var(--theme-border);
+  }
+
+  .border-theme-accent-hover:hover {
+    border-color: var(--theme-border-hover);
+  }
+
+  .shadow-theme-glow {
+    box-shadow: 0 0 10px var(--theme-glow);
+  }
+
+  .shadow-theme-glow-hover:hover {
+    box-shadow: 0 0 20px var(--theme-glow-hover);
+  }
+
+  /* Background gradients with theme colors */
+  .bg-gradient-theme {
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+  }
+
+  .bg-gradient-theme-radial {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+  }
+
+  /* Dimmer background gradients */
+  .bg-gradient-theme-radial-opacity-1 {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+    opacity: 0.1;
+  }
+
+  .bg-gradient-theme-radial-opacity-2 {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+    opacity: 0.2;
+  }
+
+  .bg-gradient-theme-radial-opacity-3 {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+    opacity: 0.3;
+  }
+
+  /* Even dimmer background gradients for dark mode */
+  .bg-gradient-theme-radial-opacity-05 {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+    opacity: 0.05;
+  }
+
+  .bg-gradient-theme-radial-opacity-075 {
+    background: radial-gradient(circle, var(--theme-primary) 0%, transparent 70%);
+    opacity: 0.075;
+  }
+}

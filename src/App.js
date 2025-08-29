@@ -4,6 +4,7 @@ import { auth } from "./firebase";
 import { loadUserData, saveUserData } from "./firestoreHelpers";
 import { Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { DEFAULT_QUESTS } from "./constants";
 
 // AttributeCircle component for circular attribute display
 function AttributeCircle({ icon, label, value, color }) {
@@ -26,7 +27,7 @@ function AttributeCircle({ icon, label, value, color }) {
   const offset = circumference - (percent / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center mx-1 sm:mx-2" style={{ minWidth: isMobile ? 48 : 72 }}>
+    <div className="flex-1 flex flex-col items-center mx-1 sm:mx-2" style={{ minWidth: isMobile ? 48 : 72 }}>
       <svg height={radius * 2} width={radius * 2}>
         <circle
           stroke="#2d3748"
@@ -59,8 +60,40 @@ function AttributeCircle({ icon, label, value, color }) {
           {percent}
         </text>
       </svg>
-      <span className={isMobile ? "text-lg mt-1" : "text-2xl mt-1"} title={label}>{icon}</span>
-      <span className={isMobile ? "capitalize text-xs mt-1 text-gray-300" : "capitalize text-sm mt-1 text-gray-300"}>{label}</span>
+      <div
+        style={{
+          height: isMobile ? 64 : 80,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <span className={isMobile ? "text-lg mt-1" : "text-2xl mt-1"} title={label}>
+          {icon}
+        </span>
+        <span
+          className={
+            isMobile
+              ? "capitalize text-xs mt-1 text-gray-300 text-center"
+              : "capitalize text-sm mt-1 text-gray-300 text-center"
+          }
+          style={{
+            minHeight: isMobile ? 32 : 28,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {label === "healthAndWellness" ? (
+            <>
+              Health
+              <br />
+              & Wellness
+            </>
+          ) : label}
+        </span>
+      </div>
     </div>
   );
 }
@@ -80,11 +113,10 @@ function App() {
   // State for the list of quests
   const [quests, setQuests] = useState(() =>
     load("quests", [
-      // Default quests
-      { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindfulness: 2 } },
-      { id: 2, text: "🏋️ Workout", xp: 25, stats: { strength: 3, discipline: 1 } },
-      { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { discipline: 3 } },
-      { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
+      { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindset: 1, healthAndWellness: 2 } },
+      { id: 2, text: "🏋️ Workout", xp: 25, stats: { mindset: 1, healthAndWellness: 2 } },
+      { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { mindset: 1, healthAndWellness: 2 } },
+      { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { mindset: 1, healthAndWellness: 2 } },
     ])
   );
 
@@ -93,6 +125,26 @@ function App() {
   // Remove lastLoginDate state
   // const [lastLoginDate, setLastLoginDate] = useState(() => load("lastLoginDate", ""));
 
+  // Default stats object
+  const defaultStats = {
+    mindset: 0,
+    healthAndWellness: 0,
+    charisma: 0,
+    education: 0,
+    spirituality: 0,
+  };
+
+  // State for user stats (attributes)
+  const [stats, setStats] = useState(() => ({
+    ...defaultStats,
+    ...(JSON.parse(localStorage.getItem("stats")) || {})
+  }));
+
+  // State for user email
+  const [userEmail, setUserEmail] = useState("");
+  // State for new custom quest input (text and XP)
+  const [newQuestText, setNewQuestText] = useState("");
+  const [newQuestXP, setNewQuestXP] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -103,12 +155,9 @@ function App() {
         if (data) {
           setXp(data.xp ?? 0);
           setLevel(data.level ?? 1);
-          setStats(data.stats ?? {
-            spiritual: 0,
-            mindfulness: 0,
-            charisma: 0,
-            strength: 0,
-            discipline: 0,
+          setStats({
+            ...defaultStats,
+            ...(data.stats || {})
           });
           setQuests(data.quests ?? []);
           // --- Daily Quest Reset Logic ---
@@ -134,22 +183,6 @@ function App() {
 
     return () => unsubscribe();
   }, []);
-
-  // State for user stats (attributes)
-  const [stats, setStats] = useState(() =>
-    JSON.parse(localStorage.getItem("stats")) ?? {
-      spiritual: 0,
-      mindfulness: 0,
-      charisma: 0,
-      strength: 0,
-      discipline: 0,
-    }
-  );
-  // State for user email
-  const [userEmail, setUserEmail] = useState("");
-  // State for new custom quest input (text and XP)
-  const [newQuestText, setNewQuestText] = useState("");
-  const [newQuestXP, setNewQuestXP] = useState("");
 
   useEffect(() => {
     if (user && !loadingUserData) {
@@ -234,6 +267,7 @@ function App() {
       id,
       text: newQuestText,
       xp: xpValue,
+      stats: { mindset: 1, healthAndWellness: 2 }, // Both attributes
     };
     setQuests([...quests, newQuest]); // Add new quest to list
     setNewQuestText(""); // Reset input
@@ -247,6 +281,27 @@ function App() {
       window.location.href = "/login";
     } catch (err) {
       alert("Logout failed");
+    }
+  };
+
+  // Add this function inside App()
+  const handleResetQuests = async () => {
+    if (user) {
+      await saveUserData(user.uid, {
+        quests: DEFAULT_QUESTS,
+        stats: {
+          mindset: 0,
+          healthAndWellness: 0,
+          charisma: 0,
+          education: 0,
+          spirituality: 0,
+        },
+        completedQuests: {},
+        xp: 0,
+        level: 1,
+        lastLoginDate: new Date().toISOString().slice(0, 10),
+      });
+      window.location.reload();
     }
   };
 
@@ -314,12 +369,12 @@ function App() {
       {/* Attributes section */}
       <div className="bg-gray-800 rounded-lg p-4 mb-6">
         <h2 className="text-xl font-bold mb-4">Your Attributes</h2>
-        <div className="flex flex-row justify-center items-center overflow-x-auto">
-          <AttributeCircle icon="🧘" label="spiritual" value={stats.spiritual} color="#a78bfa" />
-          <AttributeCircle icon="🧠" label="mindfulness" value={stats.mindfulness} color="#34d399" />
+        <div className="flex flex-row justify-between items-center overflow-x-auto">
+          <AttributeCircle icon="🧠" label="mindset" value={stats.mindset} color="#a78bfa" />
+          <AttributeCircle icon="🏃‍♂️" label="healthAndWellness" value={stats.healthAndWellness} color="#34d399" />
           <AttributeCircle icon="💬" label="charisma" value={stats.charisma} color="#fbbf24" />
-          <AttributeCircle icon="💪" label="strength" value={stats.strength} color="#60a5fa" />
-          <AttributeCircle icon="🔥" label="discipline" value={stats.discipline} color="#f87171" />
+          <AttributeCircle icon="📚" label="education" value={stats.education} color="#60a5fa" />
+          <AttributeCircle icon="🧘" label="spirituality" value={stats.spirituality} color="#f87171" />
         </div>
       </div>
 
@@ -367,6 +422,13 @@ function App() {
           </button>
         </div>
       </div>
+
+      {/* Reset Quests (Dev) button, only for bemnetbeshah@gmail.com */}
+      {userEmail === "bemnetbeshah@gmail.com" && (
+        <button onClick={handleResetQuests} className="bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-4 rounded font-semibold shadow transition-colors mb-4">
+          Reset Quests (Dev)
+        </button>
+      )}
     </div>
   );
 }
