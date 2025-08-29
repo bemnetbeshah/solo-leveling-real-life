@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 
 // Fallback quests function (temporary until we fix AI)
 function getFallbackQuests(goalText, goalType = "habit") {
+
   const quests = [];
   
   if (goalType === "habit") {
@@ -25,6 +26,7 @@ function getFallbackQuests(goalText, goalType = "habit") {
   }
   
   return quests;
+
 }
 
 export default function GoalManagement() {

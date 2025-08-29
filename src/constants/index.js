@@ -6,37 +6,37 @@ export const MAX_LEVEL = 100;
 
 // Attribute colors for the circular displays
 export const ATTRIBUTE_COLORS = {
-  spiritual: '#a78bfa',    // Purple
-  mindfulness: '#34d399',  // Green
-  charisma: '#fbbf24',     // Yellow
-  strength: '#60a5fa',     // Blue
-  discipline: '#f87171'    // Red
+  spirituality: '#a78bfa',    // Purple
+  mindset: '#34d399',         // Green
+  charisma: '#fbbf24',        // Yellow
+  healthAndWellness: '#60a5fa', // Blue
+  education: '#f87171'        // Red
 };
 
 // Attribute icons
 export const ATTRIBUTE_ICONS = {
-  spiritual: '🧘',
-  mindfulness: '🧠',
+  spirituality: '🧘',
+  mindset: '🧠',
   charisma: '💬',
-  strength: '💪',
-  discipline: '🔥'
+  healthAndWellness: '🏃‍♂️',
+  education: '📚'
 };
 
 // Default quests
 export const DEFAULT_QUESTS = [
-  { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindfulness: 2 } },
-  { id: 2, text: "🏋️ Workout", xp: 25, stats: { strength: 3, discipline: 1 } },
-  { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { discipline: 3 } },
-  { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
+  { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindset: 1, healthAndWellness: 2 } },
+  { id: 2, text: "🏋️ Workout", xp: 25, stats: { mindset: 1, healthAndWellness: 2 } },
+  { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { mindset: 1, healthAndWellness: 2 } },
+  { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { mindset: 1, healthAndWellness: 2 } },
 ];
 
 // Default stats
 export const DEFAULT_STATS = {
-  spiritual: 0,
-  mindfulness: 0,
+  spirituality: 0,
+  mindset: 0,
   charisma: 0,
-  strength: 0,
-  discipline: 0,
+  healthAndWellness: 0,
+  education: 0,
 };
 
 // Goal types
