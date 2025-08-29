@@ -4,8 +4,10 @@ import { auth } from "./firebase";
 import { loadUserData, saveUserData } from "./firestoreHelpers";
 import { Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+
 import { Heart, Brain, MessageCircle, Dumbbell, Flame, BookOpen, Settings } from "lucide-react";
 import { useTheme } from "./hooks/useTheme";
+
 
 // Enhanced AttributeCircle component with glassmorphic design
 function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
@@ -132,6 +134,7 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
   const colorVariants = getColorVariants(label);
 
   return (
+
     <div className="flex flex-col items-center">
       <div className="relative" style={{ width: 80, height: 80 }}>
         {/* Circular Progress Bar */}
@@ -180,6 +183,7 @@ function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
       <div className="mt-3 text-center">
         <div className={`text-lg font-bold ${colorVariants.textColor}`}>{value || 0}</div>
         <div className={`text-xs font-medium break-words max-w-[80px] ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{getDisplayName(label)}</div>
+
       </div>
     </div>
   );
@@ -285,14 +289,17 @@ function App() {
   const [completedQuests, setCompletedQuests] = useState(() => load("completedQuests", {}));
   const [quests, setQuests] = useState(() =>
     load("quests", [
+
       { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindset: 2 } },
       { id: 2, text: "🏋️ Workout", xp: 25, stats: { healthWellness: 3, education: 1 } },
       { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { education: 3 } },
       { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
+
     ])
   );
 
   const [user, setUser] = useState(null);
+
   const [loadingUserData, setLoadingUserData] = useState(true);
   const [stats, setStats] = useState(() =>
     JSON.parse(localStorage.getItem("stats")) ?? {
@@ -304,6 +311,7 @@ function App() {
     }
   );
   const [userEmail, setUserEmail] = useState("");
+
   const [newQuestText, setNewQuestText] = useState("");
   const [newQuestXP, setNewQuestXP] = useState("");
 
@@ -328,7 +336,9 @@ function App() {
           };
           setXp(data.xp ?? 0);
           setLevel(data.level ?? 1);
+
           setStats({ ...defaultStats, ...loadedStats });
+
           setQuests(data.quests ?? []);
           const today = new Date().toISOString().slice(0, 10);
           if (data.lastLoginDate !== today) {
@@ -427,6 +437,7 @@ function App() {
       id,
       text: newQuestText,
       xp: xpValue,
+      stats: { mindset: 1, healthAndWellness: 2 }, // Both attributes
     };
     setQuests([...quests, newQuest]);
     setNewQuestText("");
@@ -442,6 +453,7 @@ function App() {
     }
   };
 
+
   if (loadingUserData) {
     return (
       <div className={`min-h-screen bg-theme-base flex items-center justify-center`}>
@@ -452,6 +464,7 @@ function App() {
       </div>
     );
   }
+
 
   return (
     <div className={`min-h-screen bg-theme-base text-theme-primary p-4 sm:p-6 relative overflow-hidden`}>
@@ -560,6 +573,7 @@ function App() {
         </div>
       </div>
 
+
       {/* Attributes Section */}
       <div className="glass-panel p-6 mb-6 relative z-10 hover:neon-glow transition-all duration-300">
         <h2 className="text-xl font-bold mb-6 text-center">Your Attributes</h2>
@@ -569,6 +583,7 @@ function App() {
           <AttributeCircle label="charisma" value={stats.charisma} color="#fbbf24" />
           <AttributeCircle label="education" value={stats.education} color="#f87171" />
           <AttributeCircle label="spirituality" value={stats.spirituality} color="#a78bfa" />
+
         </div>
       </div>
 
@@ -616,6 +631,13 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Reset Quests (Dev) button, only for bemnetbeshah@gmail.com */}
+      {userEmail === "bemnetbeshah@gmail.com" && (
+        <button onClick={handleResetQuests} className="bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-4 rounded font-semibold shadow transition-colors mb-4">
+          Reset Quests (Dev)
+        </button>
+      )}
     </div>
   );
 }

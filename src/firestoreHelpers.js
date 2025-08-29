@@ -7,17 +7,17 @@ const defaultUserData = {
   xp: 0,
   level: 1,
   stats: {
-    spiritual: 0,
-    mindfulness: 0,
+    mindset: 0,
+    healthAndWellness: 0,
     charisma: 0,
-    strength: 0,
-    discipline: 0,
+    education: 0,
+    spirituality: 0,
   },
   quests: [
-    { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindfulness: 2 } },
-    { id: 2, text: "🏋️ Workout", xp: 25, stats: { strength: 3, discipline: 1 } },
-    { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { discipline: 3 } },
-    { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
+    { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindset: 1, healthAndWellness: 2 } },
+    { id: 2, text: "🏋️ Workout", xp: 25, stats: { mindset: 1, healthAndWellness: 2 } },
+    { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { mindset: 1, healthAndWellness: 2 } },
+    { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { mindset: 1, healthAndWellness: 2 } },
   ],
   completedQuests: {},
   habitGoals: [],
@@ -27,8 +27,14 @@ const defaultUserData = {
 // Save user data (merges with existing document to preserve other fields)
 export async function saveUserData(uid, data) {
   try {
-    console.log("Saving data for user:", uid, data); // ✅ TEMPORARY LOG
-    await setDoc(doc(db, "users", uid), data, { merge: true });
+    // Only keep new keys in stats before saving
+    const allowedKeys = ["mindset", "healthAndWellness", "charisma", "education", "spirituality"];
+    const cleanStats = Object.fromEntries(
+      Object.entries(data.stats || {}).filter(([key]) => allowedKeys.includes(key))
+    );
+    const cleanData = { ...data, stats: cleanStats };
+    console.log("Saving data for user:", uid, cleanData); // ✅ TEMPORARY LOG
+    await setDoc(doc(db, "users", uid), cleanData, { merge: true });
   } catch (err) {
     console.error("Error saving user data:", err);
   }
