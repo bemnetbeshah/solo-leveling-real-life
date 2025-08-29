@@ -19,8 +19,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 npm install
 Start the dev server:
 bash
-Copy
-Edit
+
 npm start
 Visit http://localhost:3000 to view the app.
 
