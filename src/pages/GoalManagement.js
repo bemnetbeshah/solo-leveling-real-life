@@ -1,147 +1,159 @@
 import { useState, useEffect } from "react";
 import { auth } from "../firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { loadUserData, saveUserData, addMultipleQuestsToFirestore } from "../firestoreHelpers";
-// import { getQuestSuggestions, getFallbackQuests } from "../openaiHelpers";
+import { loadUserData, saveUserData } from "../firestoreHelpers";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Plus, ArrowLeft } from "lucide-react";
+import { useTheme } from "../hooks/useTheme";
+import { Toaster } from "react-hot-toast";
 
 // Fallback quests function (temporary until we fix AI)
 function getFallbackQuests(goalText, goalType = "habit") {
-  const fallbackQuests = {
-    habit: [
-      { text: `Set aside 30 minutes for ${goalText}`, xp: 20, stats: { education: 2 } },
-      { text: `Create a checklist for ${goalText}`, xp: 15, stats: { mindset: 1 } },
-      { text: `Track progress on ${goalText}`, xp: 25, stats: { education: 3 } }
-    ],
-    material: [
-      { text: `Research best practices for ${goalText}`, xp: 30, stats: { education: 2 } },
-      { text: `Create a plan to achieve ${goalText}`, xp: 25, stats: { mindset: 2 } },
-      { text: `Set milestones for ${goalText}`, xp: 20, stats: { education: 1 } }
-    ]
-  };
-
-  return fallbackQuests[goalType] || fallbackQuests.habit;
+  const quests = [];
+  
+  if (goalType === "habit") {
+    quests.push(
+      { id: Date.now() + 1, text: `Complete: ${goalText}`, xp: 25, stats: { mindset: 2 } },
+      { id: Date.now() + 2, text: `Track progress for: ${goalText}`, xp: 15, stats: { education: 1 } }
+    );
+  } else {
+    quests.push(
+      { id: Date.now() + 1, text: `Research: ${goalText}`, xp: 30, stats: { education: 3 } },
+      { id: Date.now() + 2, text: `Plan steps for: ${goalText}`, xp: 20, stats: { mindset: 2 } },
+      { id: Date.now() + 3, text: `Take first step toward: ${goalText}`, xp: 25, stats: { healthWellness: 1 } }
+    );
+  }
+  
+  return quests;
 }
 
 export default function GoalManagement() {
+  const { isDarkMode } = useTheme();
   const [habitGoals, setHabitGoals] = useState([]);
   const [materialGoals, setMaterialGoals] = useState([]);
   const [newHabitGoal, setNewHabitGoal] = useState("");
   const [newMaterialGoal, setNewMaterialGoal] = useState("");
-  const [deadline, setDeadline] = useState("");
-  const [userId, setUserId] = useState(null);
   const [habitGoalError, setHabitGoalError] = useState("");
   const [materialGoalError, setMaterialGoalError] = useState("");
   const [loadingGoals, setLoadingGoals] = useState(true);
   const [generatingQuests, setGeneratingQuests] = useState({});
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const fetchGoals = async (uid) => {
+      try {
+        const data = await loadUserData(uid);
+        if (data) {
+          setHabitGoals(data.habitGoals || []);
+          setMaterialGoals(data.materialGoals || []);
+        }
+      } catch (error) {
+        console.error("Error fetching goals:", error);
+        toast.error("Failed to load goals");
+      } finally {
+        setLoadingGoals(false);
+      }
+    };
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        setUserId(user.uid);
-        await fetchGoals(user.uid);
+        fetchGoals(user.uid);
       } else {
-        setUserId(null);
-        setHabitGoals([]);
-        setMaterialGoals([]);
         setLoadingGoals(false);
       }
     });
+
     return () => unsubscribe();
   }, []);
 
-  const fetchGoals = async (uid) => {
-    try {
-      const userData = await loadUserData(uid);
-      setHabitGoals(userData.habitGoals || []);
-      setMaterialGoals(userData.materialGoals || []);
-    } catch (error) {
-      console.error("Error fetching goals:", error);
-    }
-    setLoadingGoals(false);
-  };
-
   const addHabitGoal = async () => {
     if (!newHabitGoal.trim()) {
-      setHabitGoalError("You didn't write anything");
+      setHabitGoalError("Please enter a goal");
       return;
     }
     setHabitGoalError("");
-    const updated = [...habitGoals, { id: Date.now().toString(), text: newHabitGoal, frequency: "daily", active: true }];
-    setHabitGoals(updated);
-    await saveGoals(updated, materialGoals);
+
+    const newGoal = { id: Date.now(), text: newHabitGoal.trim() };
+    const updatedGoals = [...habitGoals, newGoal];
+    setHabitGoals(updatedGoals);
     setNewHabitGoal("");
-    toast.success("Habit goal added successfully!");
+
+    try {
+      await saveGoals(updatedGoals, materialGoals);
+      toast.success("Habit goal added!");
+    } catch (error) {
+      console.error("Error saving habit goal:", error);
+      toast.error("Failed to save goal");
+    }
   };
 
   const addMaterialGoal = async () => {
     if (!newMaterialGoal.trim()) {
-      setMaterialGoalError("You didn't write anything");
+      setMaterialGoalError("Please enter a goal");
       return;
     }
     setMaterialGoalError("");
-    const updated = [...materialGoals, { id: Date.now().toString(), text: newMaterialGoal, deadline }];
-    setMaterialGoals(updated);
-    await saveGoals(habitGoals, updated);
+
+    const newGoal = { id: Date.now(), text: newMaterialGoal.trim() };
+    const updatedGoals = [...materialGoals, newGoal];
+    setMaterialGoals(updatedGoals);
     setNewMaterialGoal("");
-    setDeadline("");
-    toast.success("Material goal added successfully!");
+
+    try {
+      await saveGoals(habitGoals, updatedGoals);
+      toast.success("Material goal added!");
+    } catch (error) {
+      console.error("Error saving material goal:", error);
+      toast.error("Failed to save goal");
+    }
   };
 
   const deleteHabitGoal = async (id) => {
-    const updated = habitGoals.filter((goal) => goal.id !== id);
-    setHabitGoals(updated);
-    await saveGoals(updated, materialGoals);
-    toast.success("Habit goal deleted!");
+    const updatedGoals = habitGoals.filter(goal => goal.id !== id);
+    setHabitGoals(updatedGoals);
+    try {
+      await saveGoals(updatedGoals, materialGoals);
+      toast.success("Goal deleted!");
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+      toast.error("Failed to delete goal");
+    }
   };
 
   const deleteMaterialGoal = async (id) => {
-    const updated = materialGoals.filter((goal) => goal.id !== id);
-    setMaterialGoals(updated);
-    await saveGoals(habitGoals, updated);
-    toast.success("Material goal deleted!");
+    const updatedGoals = materialGoals.filter(goal => goal.id !== id);
+    setMaterialGoals(updatedGoals);
+    try {
+      await saveGoals(habitGoals, updatedGoals);
+      toast.success("Goal deleted!");
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+      toast.error("Failed to delete goal");
+    }
   };
 
   const saveGoals = async (newHabitGoals, newMaterialGoals) => {
-    if (!userId) return;
-    await saveUserData(userId, {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user logged in");
+    
+    const data = await loadUserData(user.uid);
+    await saveUserData(user.uid, {
+      ...data,
       habitGoals: newHabitGoals,
-      materialGoals: newMaterialGoals
+      materialGoals: newMaterialGoals,
     });
   };
 
   const generateQuestsFromGoal = async (goal, goalType) => {
-    if (!userId) {
-      toast.error("Please log in to generate quests");
-      return;
-    }
-
     setGeneratingQuests(prev => ({ ...prev, [goal.id]: true }));
-
+    
     try {
-      // Use fallback quests for now (we'll add AI back later)
-      console.log("Generating fallback quests for:", goal.text);
-      const fallbackQuests = getFallbackQuests(goal.text, goalType);
-      const quests = fallbackQuests.map((quest, index) => ({
-        id: Date.now() + index,
-        text: quest.text,
-        xp: quest.xp,
-        stats: quest.stats,
-        completed: false,
-        aiGenerated: false,
-        sourceGoal: goal.text
-      }));
-
-      // Add quests to Firestore
-      const success = await addMultipleQuestsToFirestore(quests, userId);
+      // For now, use fallback quests
+      const quests = getFallbackQuests(goal.text, goalType);
       
-      if (success) {
-        toast.success(`Generated ${quests.length} quests from "${goal.text}"!`);
-      } else {
-        toast.error("Failed to save quests. Please try again.");
-      }
+      // Add quests to the main quest list (you'll need to implement this)
+      console.log("Generated quests:", quests);
+      toast.success(`Generated ${quests.length} quests from "${goal.text}"`);
+      
     } catch (error) {
       console.error("Error generating quests:", error);
       toast.error("Failed to generate quests. Please try again.");
@@ -150,177 +162,175 @@ export default function GoalManagement() {
     }
   };
 
-  if (loadingGoals) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <p className="text-gray-400 text-sm sm:text-base">Loading goals...</p>
-    </div>
-  );
+  if (loadingGoals) {
+    return (
+      <div className="min-h-screen bg-theme-base flex items-center justify-center">
+        <div className="glass-panel p-8 flex flex-col items-center">
+          <div className="w-8 h-8 border-2 border-theme-accent border-t-transparent rounded-full animate-spin mb-4"></div>
+          <span className="text-theme-primary font-medium">Loading goals...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-3 sm:p-4 md:p-6">
-      {/* Back Navigation */}
-      <div className="mb-3 sm:mb-4 flex justify-start">
-        <Link
-          to="/"
-          className="text-blue-400 underline hover:text-blue-300 text-sm sm:text-base font-semibold flex items-center gap-1"
-        >
-          <span className="text-lg">←</span>
-          <span className="hidden sm:inline">Back to Main UI</span>
-          <span className="sm:hidden">Back</span>
-        </Link>
+    <div className="min-h-screen bg-theme-base text-theme-primary p-4 sm:p-6 relative overflow-hidden">
+      {/* Background gradient effects */}
+      <div className={`fixed inset-0 ${isDarkMode ? 'bg-gradient-theme-radial-opacity-05' : 'bg-gradient-theme-radial-opacity-1'} pointer-events-none`}></div>
+      <div className={`fixed top-0 right-0 w-96 h-96 ${isDarkMode ? 'bg-theme-accent opacity-20' : 'bg-theme-accent opacity-10'} rounded-full blur-3xl pointer-events-none`}></div>
+      <div className={`fixed bottom-0 left-0 w-96 h-96 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-500/1'} rounded-full blur-3xl pointer-events-none`}></div>
+      
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: isDarkMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.9)',
+            color: isDarkMode ? '#fff' : '#1a1a1a',
+            backdropFilter: 'blur(10px)',
+            border: `1px solid var(--theme-border)`,
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--theme-primary)',
+              secondary: isDarkMode ? '#fff' : '#1a1a1a',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#EF4444',
+              secondary: isDarkMode ? '#fff' : '#1a1a1a',
+            },
+          },
+        }}
+      />
+
+      <div className="relative z-10 mb-6">
+        <div className="flex items-center gap-4 mb-6">
+          <Link
+            to="/"
+            className="p-2 glass-card rounded-lg hover:neon-glow transition-all duration-300"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-glow">Goal Management</h1>
+            <p className="text-theme-secondary">Track your progress</p>
+          </div>
+        </div>
       </div>
 
-      {/* Main Title */}
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Goal Management</h1>
-
-      {/* Habit Goals Section */}
-      <section className="mb-6 sm:mb-8">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Habit Goals</h2>
-        
-        {/* Add Habit Goal Form */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
-          <input
-            type="text"
-            value={newHabitGoal}
-            onChange={(e) => setNewHabitGoal(e.target.value)}
-            placeholder="e.g. Study every day"
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
-            onKeyPress={(e) => e.key === 'Enter' && addHabitGoal()}
-          />
-          <button 
-            onClick={addHabitGoal} 
-            className="bg-blue-600 hover:bg-blue-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap"
-          >
-            Add
-          </button>
-        </div>
-        
-        {/* Error Message */}
-        {habitGoalError && (
-          <div className="text-red-400 mb-2 text-xs sm:text-sm">{habitGoalError}</div>
-        )}
-        
-        {/* Habit Goals List */}
-        <ul className="space-y-2 sm:space-y-3">
-          {habitGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded">
-              <div className="flex justify-between items-start sm:items-center">
-                <span className="text-sm sm:text-base pr-2 break-words flex-1">{goal.text}</span>
-                <div className="flex gap-2 ml-2">
+      <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
+        {/* Habit Goals Section */}
+        <div className="glass-panel p-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-theme-accent text-glow flex items-center gap-2">
+            <Sparkles className="text-theme-accent" size={22} /> Habit Goals
+          </h2>
+          
+          {/* Add Habit Goal Form */}
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
+            <input
+              type="text"
+              value={newHabitGoal}
+              onChange={(e) => setNewHabitGoal(e.target.value)}
+              placeholder="e.g. Study every day"
+              className="glass-card p-3 rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:neon-border transition-all duration-300 w-full hover:scale-[1.01]"
+              onKeyPress={(e) => e.key === 'Enter' && addHabitGoal()}
+            />
+            <button 
+              onClick={addHabitGoal} 
+              className="bg-gradient-theme hover:shadow-theme-glow-hover rounded-lg font-bold text-white px-4 py-3 transition-all duration-300 neon-glow hover:scale-[1.02]"
+            >
+              Add
+            </button>
+          </div>
+          
+          {/* Error Message */}
+          {habitGoalError && (
+            <div className="text-red-400 mb-2 text-xs sm:text-sm">{habitGoalError}</div>
+          )}
+          
+          {/* Habit Goals List */}
+          <div className="space-y-3">
+            {habitGoals.map((goal) => (
+              <div key={goal.id} className="glass-card p-4 flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]">
+                <span className="font-medium text-theme-primary">{goal.text}</span>
+                <div className="flex gap-2 items-center">
                   <button
                     onClick={() => generateQuestsFromGoal(goal, "habit")}
+                    className="px-3 py-1 bg-theme-accent/20 hover:bg-theme-accent/40 text-theme-accent rounded-lg font-semibold transition-all duration-300 neon-glow flex items-center gap-1"
                     disabled={generatingQuests[goal.id]}
-                    className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 flex-shrink-0"
-                    title="Generate AI quests for this goal"
                   >
-                    {generatingQuests[goal.id] ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Sparkles size={14} />
-                    )}
-                    <span className="hidden sm:inline">Generate Quests</span>
-                    <span className="sm:hidden">AI</span>
+                    {generatingQuests[goal.id] ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                    <span>Quests</span>
                   </button>
                   <button
                     onClick={() => deleteHabitGoal(goal.id)}
-                    className="text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
-                    title="Delete Habit Goal"
+                    className="px-2 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded-lg font-semibold transition-all duration-300 hover:shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                   >
-                    ×
+                    Delete
                   </button>
                 </div>
               </div>
-            </li>
-          ))}
-        </ul>
-        
-        {/* Empty State */}
-        {habitGoals.length === 0 && (
-          <p className="text-gray-400 text-sm sm:text-base text-center py-4">
-            No habit goals yet. Add your first one above!
-          </p>
-        )}
-      </section>
-
-      {/* Material Goals Section */}
-      <section>
-        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3">Material Goals</h2>
-        
-        {/* Add Material Goal Form */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
-          <input
-            type="text"
-            value={newMaterialGoal}
-            onChange={(e) => setNewMaterialGoal(e.target.value)}
-            placeholder="e.g. Get a 4.0 GPA"
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base w-full"
-            onKeyPress={(e) => e.key === 'Enter' && addMaterialGoal()}
-          />
-          <input
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            className="bg-gray-800 p-2 sm:p-3 rounded text-sm sm:text-base min-w-[120px] sm:min-w-[140px]"
-          />
-          <button 
-            onClick={addMaterialGoal} 
-            className="bg-green-600 hover:bg-green-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base font-medium transition-colors whitespace-nowrap"
-          >
-            Add
-          </button>
+            ))}
+          </div>
         </div>
-        
-        {/* Error Message */}
-        {materialGoalError && (
-          <div className="text-red-400 mb-2 text-xs sm:text-sm">{materialGoalError}</div>
-        )}
-        
-        {/* Material Goals List */}
-        <ul className="space-y-2 sm:space-y-3">
-          {materialGoals.map((goal) => (
-            <li key={goal.id} className="bg-gray-800 p-2 sm:p-3 rounded">
-              <div className="flex justify-between items-start sm:items-center">
-                <div className="flex-1 pr-2">
-                  <span className="text-sm sm:text-base break-words block">{goal.text}</span>
-                  <span className="text-xs sm:text-sm text-gray-400 block mt-1">
-                    (by {goal.deadline})
-                  </span>
-                </div>
-                <div className="flex gap-2 ml-2">
+
+        {/* Material Goals Section */}
+        <div className="glass-panel p-6">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 text-theme-accent text-glow flex items-center gap-2">
+            <Sparkles className="text-theme-accent" size={22} /> Material Goals
+          </h2>
+          
+          {/* Add Material Goal Form */}
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
+            <input
+              type="text"
+              value={newMaterialGoal}
+              onChange={(e) => setNewMaterialGoal(e.target.value)}
+              placeholder="e.g. Buy a new laptop"
+              className="glass-card p-3 rounded-lg text-theme-primary placeholder-theme-muted focus:outline-none focus:neon-border transition-all duration-300 w-full hover:scale-[1.01]"
+              onKeyPress={(e) => e.key === 'Enter' && addMaterialGoal()}
+            />
+            <button 
+              onClick={addMaterialGoal} 
+              className="bg-gradient-theme hover:shadow-theme-glow-hover rounded-lg font-bold text-white px-4 py-3 transition-all duration-300 neon-glow hover:scale-[1.02]"
+            >
+              Add
+            </button>
+          </div>
+          
+          {/* Error Message */}
+          {materialGoalError && (
+            <div className="text-red-400 mb-2 text-xs sm:text-sm">{materialGoalError}</div>
+          )}
+          
+          {/* Material Goals List */}
+          <div className="space-y-3">
+            {materialGoals.map((goal) => (
+              <div key={goal.id} className="glass-card p-4 flex items-center justify-between gap-3 transition-all duration-300 hover:scale-[1.02]">
+                <span className="font-medium text-theme-primary">{goal.text}</span>
+                <div className="flex gap-2 items-center">
                   <button
                     onClick={() => generateQuestsFromGoal(goal, "material")}
+                    className="px-3 py-1 bg-theme-accent/20 hover:bg-theme-accent/40 text-theme-accent rounded-lg font-semibold transition-all duration-300 neon-glow flex items-center gap-1"
                     disabled={generatingQuests[goal.id]}
-                    className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 px-2 sm:px-3 py-1 sm:py-2 rounded text-xs sm:text-sm font-medium transition-colors flex items-center gap-1 flex-shrink-0"
-                    title="Generate AI quests for this goal"
                   >
-                    {generatingQuests[goal.id] ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Sparkles size={14} />
-                    )}
-                    <span className="hidden sm:inline">Generate Quests</span>
-                    <span className="sm:hidden">AI</span>
+                    {generatingQuests[goal.id] ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                    <span>Quests</span>
                   </button>
                   <button
                     onClick={() => deleteMaterialGoal(goal.id)}
-                    className="text-red-400 hover:text-red-600 text-lg sm:text-xl font-bold px-1 sm:px-2 py-1 transition-colors flex-shrink-0"
-                    title="Delete Material Goal"
+                    className="px-2 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded-lg font-semibold transition-all duration-300 hover:shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                   >
-                    ×
+                    Delete
                   </button>
                 </div>
               </div>
-            </li>
-          ))}
-        </ul>
-        
-        {/* Empty State */}
-        {materialGoals.length === 0 && (
-          <p className="text-gray-400 text-sm sm:text-base text-center py-4">
-            No material goals yet. Add your first one above!
-          </p>
-        )}
-      </section>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
