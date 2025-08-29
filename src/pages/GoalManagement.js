@@ -3,7 +3,7 @@ import { auth } from "../firebase";
 import { loadUserData, saveUserData } from "../firestoreHelpers";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { Sparkles, Loader2, Plus, ArrowLeft } from "lucide-react";
+import { Sparkles, Loader2, ArrowLeft } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 import { Toaster } from "react-hot-toast";
 

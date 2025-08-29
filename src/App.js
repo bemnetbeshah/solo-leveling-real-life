@@ -4,13 +4,13 @@ import { auth } from "./firebase";
 import { loadUserData, saveUserData } from "./firestoreHelpers";
 import { Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { Heart, Brain, MessageCircle, Dumbbell, Flame, BookOpen, Settings } from "lucide-react";
+import { Heart, Brain, MessageCircle, Dumbbell, BookOpen, Settings } from "lucide-react";
 import { useTheme } from "./hooks/useTheme";
 
 // Enhanced AttributeCircle component with glassmorphic design
 function AttributeCircle({ icon, label, value, color, maxValue = 10 }) {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
-  const { isDarkMode, themeColor, themeColors } = useTheme();
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -427,7 +427,7 @@ function App() {
       id,
       text: newQuestText,
       xp: xpValue,
-      stats: { mindset: 1, healthAndWellness: 2 }, // Both attributes
+      stats: { mindset: 1, healthWellness: 2 }, // Both attributes
     };
     setQuests([...quests, newQuest]);
     setNewQuestText("");
@@ -440,6 +440,32 @@ function App() {
       window.location.href = "/login";
     } catch (err) {
       alert("Logout failed");
+    }
+  };
+
+  // Add this function inside App()
+  const handleResetQuests = async () => {
+    if (user) {
+      await saveUserData(user.uid, {
+        quests: [
+          { id: 1, text: "🧠 Read 30 mins", xp: 20, stats: { mindset: 2 } },
+          { id: 2, text: "🏋️ Workout", xp: 25, stats: { healthWellness: 3, education: 1 } },
+          { id: 3, text: "📈 Study coding 1hr", xp: 30, stats: { education: 3 } },
+          { id: 4, text: "🤝 Network with 1 person", xp: 25, stats: { charisma: 2 } },
+        ],
+        stats: {
+          mindset: 0,
+          healthWellness: 0,
+          charisma: 0,
+          education: 0,
+          spirituality: 0,
+        },
+        completedQuests: {},
+        xp: 0,
+        level: 1,
+        lastLoginDate: new Date().toISOString().slice(0, 10),
+      });
+      window.location.reload();
     }
   };
 
